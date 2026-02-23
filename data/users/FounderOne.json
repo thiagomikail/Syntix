@@ -1,0 +1,830 @@
+{
+  "username": "FounderOne",
+  "history": [
+    {
+      "id": "1771176407043",
+      "timestamp": "2026-02-15T17:26:47.043Z",
+      "text": "A robot to shoot videos",
+      "analysis": {
+        "score": 32,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 85,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 55,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 70,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 30,
+          "marketDepth": 65,
+          "unitEconomics": 25
+        },
+        "metricDetails": {
+          "logicalCoherence": "A proposta é terrivelmente vaga e falha em identificar se o problema é o custo de equipe, a estabilização de imagem ou a automação de estúdio. Sem um nicho específico, você não tem um produto, tem apenas um conceito técnico órfão de utilidade.",
+          "marketDepth": "Embora a Creator Economy movimente bilhões, o mercado de hardware para vídeo é dominado por titãs como DJI e Insta360. Tentar morder um SAM genérico sem uma diferenciação radical é um suicídio estratégico em um oceano vermelho.",
+          "unitEconomics": "Hardware é onde o capital vai para morrer; os custos de R&D, logística e garantia tornam as margens iniciais negativas. Sem um modelo recorrente (SaaS) atrelado, o custo de aquisição de cliente (CAC) nunca será compensado pelo valor de vida útil (LTV)."
+        },
+        "feedback": "Uma ideia rudimentar que confunde um dispositivo eletrônico com um modelo de negócio viável. O projeto carece de profundidade técnica e estratégica, sendo atualmente apenas um dreno de capital sem vantagem competitiva."
+      }
+    },
+    {
+      "id": "1771176212883",
+      "timestamp": "2026-02-15T17:23:32.883Z",
+      "text": "A robot to shoot videos",
+      "analysis": {
+        "score": 50,
+        "radarData": [],
+        "detailedScores": {
+          "logicalCoherence": 50,
+          "marketDepth": 50,
+          "unitEconomics": 50
+        },
+        "metricDetails": {
+          "logicalCoherence": "Analysis failed. Please try again.",
+          "marketDepth": "Analysis failed. Please try again.",
+          "unitEconomics": "Analysis failed. Please try again."
+        },
+        "feedback": "Analysis failed. Reason: Expected double-quoted property name in JSON at position 1455 (line 20 column 3)"
+      }
+    },
+    {
+      "id": "1771176134768",
+      "timestamp": "2026-02-15T17:22:14.768Z",
+      "text": "A robot to shoot videos",
+      "analysis": {
+        "score": 18,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 20,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 15,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 25,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 15,
+          "marketDepth": 42,
+          "unitEconomics": 28
+        },
+        "metricDetails": {
+          "logicalCoherence": "A proposta é terrivelmente vaga, falhando em identificar se o alvo é o cinema profissional, criadores de conteúdo ou segurança doméstica. Sem um problema específico para resolver, isso não é uma empresa, é apenas um hobby caro de engenharia.",
+          "marketDepth": "Embora a Creator Economy seja vasta, o mercado de hardware para vídeo está saturado por gigantes como DJI e sistemas de automação de estúdio. Sem um SOM (Serviceable Obtainable Market) definido, você está tentando vender gelo para esquimós que já possuem máquinas de gelo industriais.",
+          "unitEconomics": "Fabricar hardware exige um CAPEX massivo e as margens são devoradas por logística, suporte técnico e obsolescência rápida. Sem um modelo de receita recorrente ou diferencial de software, o custo de aquisição de cliente (CAC) tornará este negócio um buraco negro financeiro."
+        },
+        "feedback": "Uma ideia genérica que ignora a complexidade do mercado de hardware e a dominância de players estabelecidos. Sem uma proposta de valor disruptiva ou integração de software única, este projeto é um ralo de capital sem retorno à vista."
+      }
+    },
+    {
+      "id": "1771176070952",
+      "timestamp": "2026-02-15T17:21:10.952Z",
+      "text": "A robot to shoot videos",
+      "analysis": {
+        "score": 28,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 82,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 35,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 20,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 60,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 35,
+          "marketDepth": 55,
+          "unitEconomics": 20
+        },
+        "metricDetails": {
+          "logicalCoherence": "A ideia é uma descrição de funcionalidade, não um modelo de negócio; falta definir o problema real (dor do usuário) que este robô resolve melhor que um tripé ou um operador humano. Sem um nicho específico, a solução vaga não consegue sustentar uma proposta de valor clara.",
+          "marketDepth": "Embora a Creator Economy seja vasta, o mercado de hardware para vídeo é dominado por gigantes como DJI e Insta360, deixando pouco espaço para novos entrantes sem IP radical. O mercado total é grande, mas o mercado endereçável para uma startup de hardware genérico é um campo minado de commodities.",
+          "unitEconomics": "Hardware é o cemitério de VCs: custos de R&D massivos, logística complexa e margens de lucro que são esmagadas pela fabricação em escala de concorrentes chineses. Sem um modelo SaaS acoplado, o custo de aquisição de cliente (CAC) tornará esta operação um ralo de capital insustentável."
+        },
+        "feedback": "Veredito: Uma proposta de hardware genérica e sem diferencial competitivo que ignora a saturação do mercado e os custos brutais de escala. É um brinquedo tecnológico, não um negócio escalável ou defensável."
+      }
+    },
+    {
+      "id": "1771175937014",
+      "timestamp": "2026-02-15T17:18:57.014Z",
+      "text": "A robot to shoot videos",
+      "analysis": {
+        "score": 32,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 75,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 35,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 85,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 40,
+          "marketDepth": 65,
+          "unitEconomics": 30
+        },
+        "metricDetails": {
+          "logicalCoherence": "A ideia é perigosamente vaga; não define se o alvo é cinema de alto orçamento, criadores de conteúdo ou segurança doméstica. Sem um problema específico para resolver, o robô é apenas um brinquedo caro em busca de uma utilidade.",
+          "marketDepth": "Embora o TAM de criadores seja bilionário, o mercado de hardware é canibalizado pela DJI e por melhorias exponenciais em software de IA e estabilização de smartphones. O SOM para um novo player de hardware genérico é praticamente inexistente sem uma inovação radical.",
+          "unitEconomics": "Hardware é o cemitério do capital de risco; custos de R&D, fabricação e logística tornam o ROI lento e incerto. Sem um modelo de receita recorrente (SaaS), o negócio é um poço de queima de caixa com margens esmagadas por competidores chineses."
+        },
+        "feedback": "Uma proposta genérica e sem diferencial técnico que ignora a complexidade logística e a saturação do mercado de hardware. O veredito é negativo: sem um nicho hiper-específico ou software proprietário disruptivo, este projeto é um desperdício de capital."
+      }
+    },
+    {
+      "id": "1771175072761",
+      "timestamp": "2026-02-15T17:04:32.761Z",
+      "text": "A gym for coders",
+      "analysis": {
+        "score": 28,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 50,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 20,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 40,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 35,
+          "marketDepth": 25,
+          "unitEconomics": 18
+        },
+        "metricDetails": {
+          "logicalCoherence": "You are attempting to solve a problem that doesn't exist; coders don't need a specific building to type, they need isolation and a workstation, which they already possess. The social value proposition is better served by existing tech hubs or free meetups, making this a redundant solution in search of a problem.",
+          "marketDepth": "The TAM is restricted to a hyper-niche demographic of developers willing to pay a secondary 'office' subscription in an era dominated by remote work and home-office stipends. Even with 27 million developers globally, the segment interested in a physical 'coding gym' is statistically negligible and geographically fragmented.",
+          "unitEconomics": "Heavy CAPEX for ergonomic hardware and high-speed infrastructure combined with high rent makes this a capital-intensive money pit. Unless you're charging premium enterprise rates that no individual developer would pay, your LTV will never outpace the crushing operational overhead and high churn."
+        },
+        "feedback": "This is a romanticized real estate play masquerading as a tech startup that fundamentally ignores the shift toward asynchronous, remote work. It is a low-margin, high-overhead vanity project with zero path to venture-scale returns."
+      }
+    },
+    {
+      "id": "1771172063808",
+      "timestamp": "2026-02-15T16:14:23.808Z",
+      "text": "A gym for coders",
+      "analysis": {
+        "score": 32,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 60,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 55,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 40,
+          "marketDepth": 30,
+          "unitEconomics": 18
+        },
+        "metricDetails": {
+          "logicalCoherence": "The premise assumes that professional identity dictates fitness needs, which is a massive logical leap. A coder’s physiological requirements—fixing anterior pelvic tilt and carpal tunnel—are already addressed by every physical therapist and high-end gym on the planet without the cringe-worthy branding.",
+          "marketDepth": "While the global developer population is roughly 27 million, the addressable market for a niche physical space is limited to hyper-dense tech hubs like SF or NYC. You are essentially fighting for a fraction of a fraction of a market that is increasingly moving toward remote work and home-based fitness setups.",
+          "unitEconomics": "This is a capital-intensive 'real estate play' disguised as a tech startup, which is a death sentence for margins. High OpEx, low member density, and the astronomical cost of specialized ergonomic equipment mean you'll be burning cash faster than a developer burns through coffee just to keep the lights on."
+        },
+        "feedback": "This is a romanticized clubhouse, not a venture-scale business; it lacks a moat and suffers from terminal unscalability. Unless you pivot to a digital-only ergonomic SaaS, you are merely building an expensive monument to a niche demographic that would rather be at home."
+      }
+    },
+    {
+      "id": "1771171667724",
+      "timestamp": "2026-02-15T16:07:47.724Z",
+      "text": "A gym for coders",
+      "analysis": {
+        "score": 32,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 55,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 15,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 20,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 45,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 40,
+          "marketDepth": 55,
+          "unitEconomics": 25
+        },
+        "metricDetails": {
+          "logicalCoherence": "The 'gym' analogy is a category error; coding 'reps' are performed better on a $2k MacBook at home than in a noisy, high-CAPEX shared facility. You are trying to solve professional isolation with a real estate play that duplicates the developer's existing home infrastructure.",
+          "marketDepth": "While there are 27 million developers globally, the subset willing to pay a premium for a specialized physical space—given the massive shift toward remote work—is laughably small. You're competing for a sliver of the co-working market but with a more restrictive, less diverse user base.",
+          "unitEconomics": "This is a low-margin trap combining the overhead of a fitness center with the specialized hardware costs of a tech lab. Between commercial rent, high energy costs, and hardware depreciation, your CAC-to-LTV ratio will be a terminal diagnosis for your cash reserves."
+        },
+        "feedback": "This is a glorified clubhouse disguised as a tech venture; it has the scalability of a brick and the defensibility of a wet paper towel. Verdict: Hard pass—don't mistake a niche hobbyist community for a billion-dollar opportunity."
+      }
+    },
+    {
+      "id": "1771166338385",
+      "timestamp": "2026-02-15T14:38:58.385Z",
+      "text": "Presentes pra sogra em um catalogo simples usando impressoras 3D",
+      "analysis": {
+        "score": 28,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 65,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 35,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 15,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 45,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 42,
+          "marketDepth": 30,
+          "unitEconomics": 25
+        },
+        "metricDetails": {
+          "logicalCoherence": "Embora o 'problema' de presentear sogras seja universal, a solução via impressão 3D é um erro de categoria; sogras geralmente valorizam status ou utilidade refinada, não bugigangas de plástico com acabamento de protótipo. O fit produto-mercado é fraco e puramente anedótico.",
+          "marketDepth": "O TAM é vasto, mas o seu SOM é minúsculo e irrelevante. Você não está competindo apenas com outras impressoras 3D, mas com a Amazon, shoppings e qualquer loja de decoração que entrega produtos superiores por uma fração do esforço.",
+          "unitEconomics": "A impressão 3D é o inimigo da margem em larga escala devido ao alto tempo de ciclo e manutenção de hardware. Com o custo de aquisição de cliente (CAC) subindo no e-commerce, o lucro por peça impressa será devorado pela logística e falhas de impressão."
+        },
+        "feedback": "Veredito: Isso não é uma startup, é um hobby caro de garagem que nunca sobreviveria a uma rodada Seed. O modelo carece de barreira competitiva e escalabilidade, produzindo itens de baixo valor percebido com um custo operacional insustentável."
+      }
+    },
+    {
+      "id": "1771163110928",
+      "timestamp": "2026-02-15T13:45:10.928Z",
+      "text": "A local newsletter for dog owners in NYC",
+      "analysis": {
+        "score": 32,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 60,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 115,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 55,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 20,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 45,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 78,
+          "marketDepth": 40,
+          "unitEconomics": 35
+        },
+        "metricDetails": {
+          "logicalCoherence": "The problem-solution fit is high because dog owners are desperate for hyper-local community and service data. However, a newsletter is a primitive delivery mechanism that offers no proprietary technology to solve the discovery friction efficiently.",
+          "marketDepth": "NYC has ~600,000 dogs, but you are targeting a niche of a niche within a single geography. This is a lifestyle business with a microscopic TAM that lacks the 'billion-dollar' potential required for venture-scale returns.",
+          "unitEconomics": "Local ad sales are a notorious graveyard of high-touch manual labor and low margins. Unless you are converting subscribers into high-ticket commerce leads, your CAC will eventually outpace your measly local sponsorship CPMs."
+        },
+        "feedback": "This is a charming hobby, not a venture-scale enterprise; it lacks a moat and is geographically trapped. If you can't automate the hyper-local content or build a proprietary data layer, you're just a freelancer with a mailing list."
+      }
+    },
+    {
+      "id": "1771162986409",
+      "timestamp": "2026-02-15T13:43:06.409Z",
+      "text": "A perpetual motion machine generator",
+      "analysis": {
+        "score": 1,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 5,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 0,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 0,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 0,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 0,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 15,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 0,
+          "marketDepth": 0,
+          "unitEconomics": 0
+        },
+        "metricDetails": {
+          "logicalCoherence": "A proposta é um insulto à inteligência básica, violando a Primeira e Segunda Lei da Termodinâmica. Não existe 'ajuste produto-solução' quando a solução desafia as leis fundamentais da física universal.",
+          "marketDepth": "Embora a demanda por energia gratuita seja infinita, o mercado real para um produto impossível é zero. O TAM/SAM/SOM é uma ficção absoluta, pois não se pode capturar mercado com um item que não pode existir na realidade material.",
+          "unitEconomics": "Este é um buraco negro financeiro onde o custo de desenvolvimento é infinito e o retorno é nulo. A única economia presente aqui é o estelionato, resultando em uma perda total de 100% do capital investido."
+        },
+        "feedback": "Veredito: Este projeto é um delírio pseudocientífico ou uma tentativa de fraude flagrante. Recomendo o descarte imediato e a proibição de futuros aportes para qualquer indivíduo que ignore as leis da física."
+      }
+    },
+    {
+      "id": "1771162907666",
+      "timestamp": "2026-02-15T13:41:47.666Z",
+      "text": "A local newsletter for dog owners in NYC",
+      "analysis": {
+        "score": 42,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 65,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 120,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 35,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 50,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 82,
+          "marketDepth": 40,
+          "unitEconomics": 38
+        },
+        "metricDetails": {
+          "logicalCoherence": "O problema de fragmentação de informações locais para donos de cães em NYC é real e a solução é direta. Entretanto, a simplicidade do modelo beira o amadorismo, faltando um diferencial tecnológico que impeça a obsolescência imediata por grandes plataformas.",
+          "marketDepth": "Você está preso em uma bolha geográfica; embora NYC tenha 600 mil cães, o teto de receita é baixo para capital de risco. O SOM é minúsculo e a competição pela atenção no inbox do nova-iorquino é uma guerra sangrenta que você dificilmente vencerá com conteúdo genérico.",
+          "unitEconomics": "O custo de aquisição (CAC) em Manhattan é proibitivo e o LTV baseado em anúncios locais é uma piada de mau gosto. Sem uma integração vertical de serviços ou e-commerce, você está apenas queimando dinheiro para ser um panfleto digital de baixa margem."
+        },
+        "feedback": "Um 'lifestyle business' disfarçado de startup que carece de qualquer vantagem competitiva ou escalabilidade real. Útil para o dono da pet shop da esquina, mas irrelevante para um portfólio de Venture Capital sério."
+      }
+    },
+    {
+      "id": "1771125381911",
+      "timestamp": "2026-02-15T03:16:21.911Z",
+      "text": "Urban Hydroponics: A sustainable indoor farming system for urban environments.",
+      "analysis": {
+        "score": 42,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 105,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 55,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 35,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 20,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 55,
+          "marketDepth": 70,
+          "unitEconomics": 30
+        },
+        "metricDetails": {
+          "logicalCoherence": "A ideia é um clichê de 'ESG' que carece de uma proposta de valor específica, tratando a hidroponia como uma novidade e não como uma commodity tecnológica saturada. Falta um diferencial competitivo claro que impeça qualquer competidor com mais capital de esmagar a operação.",
+          "marketDepth": "Embora o TAM para alimentos frescos seja gigantesco, o SAM urbano é severamente limitado pelo custo proibitivo do metro quadrado e restrições de zoneamento. O mercado é vasto, mas a sua capacidade de capturá-lo de forma lucrativa é sufocada pela logística de última milha já dominada por gigantes.",
+          "unitEconomics": "Este modelo é um buraco negro de CAPEX e OPEX, onde custos de energia para LEDs e controle climático raramente superam a margem de produtos de baixo valor como folhosas. Sem uma tecnologia proprietária de eficiência energética, você está apenas queimando dinheiro de investidores para cultivar alfaces caras."
+        },
+        "feedback": "O projeto é uma fantasia de sustentabilidade sem viabilidade econômica real, operando com margens de commodity em um ambiente de custos imobiliários de luxo. Veredito: Ininvestível até que apresente uma vantagem tecnológica disruptiva ou um modelo de receita que não dependa apenas da venda de vegetais."
+      }
+    },
+    {
+      "id": "1771125268786",
+      "timestamp": "2026-02-15T03:14:28.786Z",
+      "text": "Urban Hydroponics: A sustainable indoor farming system for urban environments.",
+      "analysis": {
+        "score": 50,
+        "radarData": [],
+        "detailedScores": {
+          "logicalCoherence": 50,
+          "marketDepth": 50,
+          "unitEconomics": 50
+        },
+        "metricDetails": {
+          "logicalCoherence": "Analysis failed. Please try again.",
+          "marketDepth": "Analysis failed. Please try again.",
+          "unitEconomics": "Analysis failed. Please try again."
+        },
+        "feedback": "Analysis failed. Reason: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+      }
+    },
+    {
+      "id": "1771124754821",
+      "timestamp": "2026-02-15T03:05:54.821Z",
+      "text": "A subscription service for renting high-end specialized tools for DIY projects",
+      "analysis": {
+        "score": 50,
+        "radarData": [],
+        "detailedScores": {
+          "logicalCoherence": 50,
+          "marketDepth": 50,
+          "unitEconomics": 50
+        },
+        "metricDetails": {
+          "logicalCoherence": "Analysis failed. Please try again.",
+          "marketDepth": "Analysis failed. Please try again.",
+          "unitEconomics": "Analysis failed. Please try again."
+        },
+        "feedback": "Analysis failed. Reason: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\nPlease retry in 5.424767664s. [{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-3-flash\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"5s\"}]"
+      }
+    },
+    {
+      "id": "1771124080815",
+      "timestamp": "2026-02-15T02:54:40.815Z",
+      "text": "A new revolutionary AI-powered coffee machine that knows your mood.",
+      "analysis": {
+        "score": 50,
+        "radarData": [],
+        "detailedScores": {
+          "logicalCoherence": 50,
+          "marketDepth": 50,
+          "unitEconomics": 50
+        },
+        "feedback": "Analysis failed. Reason: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\nPlease retry in 19.367100525s. [{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-3-flash\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"19s\"}]"
+      }
+    },
+    {
+      "id": "1771121264575",
+      "timestamp": "2026-02-15T02:07:44.575Z",
+      "text": "A new decentralized energy marketplace for microgrids.",
+      "analysis": {
+        "score": 64,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 135,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 115,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 60,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 85,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 70,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 45,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 82,
+          "marketDepth": 94,
+          "unitEconomics": 42
+        },
+        "feedback": "Embora o TAM seja colossal devido à transição energética, o projeto enfrenta barreiras regulatórias brutais e margens unitárias perigosamente esmagadas por custos de hardware. Sem uma estratégia clara de interoperabilidade e defesa contra grandes utilities, a escalabilidade permanece puramente teórica."
+      }
+    },
+    {
+      "id": "1771119852352",
+      "timestamp": "2026-02-15T01:44:12.352Z",
+      "text": "Blockchain voting system",
+      "analysis": {
+        "score": 38,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 125,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 65,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 90,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 55,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 25,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 45,
+          "marketDepth": 82,
+          "unitEconomics": 30
+        },
+        "feedback": "Embora o mercado endereçável seja vasto, a fricção regulatória e o custo proibitivo de aquisição de clientes governamentais tornam o modelo altamente ineficiente. A solução resolve a transparência, mas falha em mitigar os riscos de identidade digital e a resistência burocrática sistêmica."
+      }
+    },
+    {
+      "id": "1771119747898",
+      "timestamp": "2026-02-15T01:42:27.898Z",
+      "text": "Test Idea",
+      "analysis": {
+        "score": 5,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 10,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 5,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 5,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 5,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 0,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 0,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 5,
+          "marketDepth": 10,
+          "unitEconomics": 5
+        },
+        "feedback": "Esta proposta é um vazio conceitual absoluto, carecendo de qualquer substância mínima para análise financeira ou estratégica. Sem um problema real ou solução definida, o projeto é tecnicamente inexistente e indigno de investimento."
+      }
+    }
+  ]
+}

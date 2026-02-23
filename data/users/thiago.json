@@ -1,0 +1,428 @@
+{
+  "username": "thiago",
+  "history": [
+    {
+      "id": "1771179344928",
+      "timestamp": "2026-02-15T18:15:44.928Z",
+      "text": "um jogo de videogame cujo objetivo é cooperar o máximo possível com outros./.. começa em jogos de infancia, depois de escola, depois simulando algum trabalho de faculdade, algum adificuldade municipal e depois no pais",
+      "analysis": {
+        "score": 32,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 65,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 90,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 38,
+          "marketDepth": 45,
+          "unitEconomics": 25
+        },
+        "metricDetails": {
+          "logicalCoherence": "A progressão narrativa é ambiciosa, mas carece de um 'core loop' mecânico que una as fases; saltar de brincadeiras de infância para gestão nacional sem uma mecânica central sólida cria uma experiência fragmentada. O conceito foca no 'quê', mas ignora completamente o 'como' manter o engajamento técnico do jogador.",
+          "marketDepth": "Embora o mercado de games seja massivo, o nicho de 'simuladores de cooperação social pura' é arriscado e saturado por títulos AAA como 'It Takes Two'. O TAM é global, mas o SOM é limitado por um público que geralmente busca conflito ou competição, não apenas altruísmo simulado.",
+          "unitEconomics": "O custo de produção para cinco cenários e escalas completamente diferentes (escola vs. país) é um pesadelo de queima de capital (burn rate). Sem um modelo de monetização recorrente claro, o LTV dificilmente cobrirá o altíssimo custo de desenvolvimento de conteúdo sob medida para cada fase."
+        },
+        "feedback": "O projeto é uma visão filosófica, não um modelo de negócio; a complexidade de desenvolvimento versus o retorno incerto o torna um 'money pit' para VCs. No estágio atual, é apenas um conceito artístico sem viabilidade técnica ou defensibilidade de mercado."
+      }
+    },
+    {
+      "id": "1771126691938",
+      "timestamp": "2026-02-15T03:38:11.938Z",
+      "text": "Market prediction for sector based on laws being voted (i.e. analysis of congress data to predict possible outcomes if the  bill is approved).",
+      "analysis": {
+        "score": 62,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 132,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 105,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 80,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 85,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 70,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 15,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 72,
+          "marketDepth": 88,
+          "unitEconomics": 54
+        },
+        "metricDetails": {
+          "logicalCoherence": "O nexo entre legislação e impacto de mercado é real, mas a imprevisibilidade política torna qualquer modelo estatístico baseado apenas em dados públicos inerentemente instável. Sem considerar o lobby de bastidores, sua 'previsão' corre o risco de ser apenas uma leitura sofisticada do que já está precificado.",
+          "marketDepth": "O apetite por 'alpha' regulatório entre fundos de hedge e multinacionais é voraz, tornando o mercado endereçável massivo. No entanto, o valor real está concentrado em nichos de alta regulação, como saúde e energia, limitando o alcance orgânico inicial.",
+          "unitEconomics": "Este modelo é um poço de custos fixos devido à necessidade de engenharia de dados pesada e validação de especialistas jurídicos caros. A margem bruta será severamente canibalizada pelo custo de aquisição de dados limpos e pela constante recalibragem de LLMs para evitar alucinações políticas."
+        },
+        "feedback": "Uma ferramenta de inteligência política com alto valor agregado para o setor financeiro, mas que enfrenta uma barreira de execução técnica e operacional brutal. O veredito é de cautela: você está tentando quantificar o caos e vender isso para pessoas que odeiam incerteza."
+      }
+    },
+    {
+      "id": "1771126551952",
+      "timestamp": "2026-02-15T03:35:51.952Z",
+      "text": "coating and blankets that can convert energy heat to eletricity.\n",
+      "analysis": {
+        "score": 32,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 115,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 55,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 25,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 120,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 10,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 45,
+          "marketDepth": 82,
+          "unitEconomics": 20
+        },
+        "metricDetails": {
+          "logicalCoherence": "Embora a termoeletricidade seja uma ciência real, a aplicação em 'cobertores e revestimentos' genéricos ignora a baixíssima eficiência de conversão atual (Zt) e a falta de um problema crítico específico. O conceito flutua entre um gadget de camping e uma solução industrial sem se comprometer com a física necessária para viabilizar qualquer um dos dois.",
+          "marketDepth": "O TAM de recuperação de calor residual é massivo, ultrapassando US$ 70 bilhões, mas o SAM para materiais flexíveis é nichado e incipiente. Você está tentando entrar em um mercado dominado por trocadores de calor rígidos e eficientes com uma solução cara que ninguém sabe exatamente onde instalar.",
+          "unitEconomics": "A produção de nanomateriais ou polímeros termoelétricos é um pesadelo de CAPEX com margens inexistentes devido ao custo das matérias-primas. O ROI para o usuário final seria medido em décadas, o que torna o produto um 'ralo de dinheiro' insustentável sem subsídios governamentais massivos."
+        },
+        "feedback": "Veredito: Uma fantasia científica cara com eficiência termodinâmica deplorável. É um projeto de laboratório disfarçado de startup que morrerá no 'Vale da Morte' do hardware antes de gerar o primeiro watt comercial."
+      }
+    },
+    {
+      "id": "1771126014750",
+      "timestamp": "2026-02-15T03:26:54.750Z",
+      "text": "Sistema de monitoramento de condição para consumo energético de ativos industriais. Semelhante às plataformas como Bentley Nevada e Tractian para confiabilidade de equipamentos, mas voltada ao consumo energético. Por exemplo: fornos de reciclagem de alumínio que variam sua intensidade energética a depender de fatores como refratário, queimadores, etc, terão agentes para monitorar ativamente. \n\n",
+      "analysis": {
+        "score": 68,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 135,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 127,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 90,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 105,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 112,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 30,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 85,
+          "marketDepth": 90,
+          "unitEconomics": 60
+        },
+        "metricDetails": {
+          "logicalCoherence": "O modelo espelha teses de sucesso em confiabilidade, aplicando-as a uma dor financeira direta (energia). A lógica é sólida, mas a execução depende de uma integração profunda com hardware legado que é notoriamente difícil de digitalizar.",
+          "marketDepth": "O TAM é massivo, dado que energia é o maior OPEX da indústria pesada e as metas de ESG pressionam por eficiência. Contudo, o SAM é limitado pela presença de gigantes como Schneider e Siemens que já dominam os painéis de controle.",
+          "unitEconomics": "O custo de instalação física e o ciclo de vendas industrial de 12 meses são devoradores de caixa. Para ser lucrativo, o LTV precisa ser gigantesco para compensar um CAC que envolve engenharia de campo e longas provas de conceito."
+        },
+        "feedback": "Uma tese robusta que ataca a maior hemorragia financeira da indústria, mas que corre o risco de morrer na complexidade da implementação física. O veredito é de cautela: o potencial de retorno é alto, desde que a solução não se torne uma consultoria de engenharia disfarçada de software."
+      }
+    },
+    {
+      "id": "1771125830747",
+      "timestamp": "2026-02-15T03:23:50.747Z",
+      "text": "Quero criar uma business school para lançar negócios, focado em quem é estudante de engenharia ou engenheiros formados e que podem empreender. \n\nA monetização se dará de duas formas: entrando como venture capitalist (investidor anjo) - por exemplo por 10% de cada negócio OU através de cobrança das aulas e mentorias. ",
+      "analysis": {
+        "score": 42,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 85,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 105,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 60,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 70,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 30,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 70,
+          "marketDepth": 55,
+          "unitEconomics": 40
+        },
+        "metricDetails": {
+          "logicalCoherence": "O fit entre o problema (engenheiros sem visão de negócio) e a solução é claro, mas o modelo de monetização é contraditório. Ao cobrar mensalidade e pedir 10% de equity, você cria uma seleção adversa onde os melhores talentos preferirão aceleradoras que aportam capital em vez de cobrar taxas.",
+          "marketDepth": "Embora o Brasil forme cerca de 40 mil engenheiros por ano (TAM), o SOM é restrito a uma fração mínima com perfil empreendedor e capital disponível. Você está competindo com ecossistemas de inovação universitários e aceleradoras globais que não exigem pagamento upfront, reduzindo seu mercado endereçável a amadores.",
+          "unitEconomics": "Mentorias de alta qualidade não escalam sem diluir o valor, transformando o negócio em um 'moedor de carne' operacional. O retorno sobre o equity de 10% é um ativo de altíssimo risco e baixa liquidez que não sustenta o burn rate necessário para manter uma faculdade de negócios de elite."
+        },
+        "feedback": "O modelo sofre de crise de identidade: ou você é uma escola escalável de cursos gravados ou é um braço de Venture Capital focado em equity. Tentar ser os dois sem um fundo de capital de risco real apenas afasta os unicórnios e atrai fundadores medíocres que buscam validação paga."
+      }
+    },
+    {
+      "id": "1771124430275",
+      "timestamp": "2026-02-15T03:00:30.275Z",
+      "text": "Um sistema de análise de desperdício de energia que vá em cada processo que a organizaçào faz: do uso indevido de LLM ao invés de pesquisas simples até sua análise industrial.",
+      "analysis": {
+        "score": 50,
+        "radarData": [],
+        "detailedScores": {
+          "logicalCoherence": 50,
+          "marketDepth": 50,
+          "unitEconomics": 50
+        },
+        "feedback": "Analysis failed. Reason: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\nPlease retry in 29.895672002s. [{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-3-flash\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"29s\"}]"
+      }
+    },
+    {
+      "id": "1771122591719",
+      "timestamp": "2026-02-15T02:29:51.719Z",
+      "text": "Um sistema de venda de viagens por milhas. Tenho desenvolvido uma inteligência com banco de dados de milhas. A interface será feita totalmente por Whatsapp\n",
+      "analysis": {
+        "score": 62,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 115,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 130,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 90,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 110,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 45,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 95,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 88,
+          "marketDepth": 76,
+          "unitEconomics": 60
+        },
+        "feedback": "A solução reduz drasticamente a fricção do usuário ao utilizar o WhatsApp, mas o modelo de negócio caminha em uma linha tênue de legalidade e termos de serviço das companhias aéreas. Sem uma barreira tecnológica proprietária intransponível, o risco de execução e a vulnerabilidade a mudanças nas APIs das aéreas tornam o investimento altamente especulativo."
+      }
+    },
+    {
+      "id": "1771120814086",
+      "timestamp": "2026-02-15T02:00:14.086Z",
+      "text": "Um sistema de análise de desperdício de energia que vá em cada processo que a organizaçào faz: do uso indevido de LLM ao invés de pesquisas simples até sua análise industrial.",
+      "analysis": {
+        "score": 50,
+        "radarData": [],
+        "detailedScores": {
+          "logicalCoherence": 50,
+          "marketDepth": 50,
+          "unitEconomics": 50
+        },
+        "feedback": "Analysis failed. Reason: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+      }
+    },
+    {
+      "id": "1771120671682",
+      "timestamp": "2026-02-15T01:57:51.682Z",
+      "text": "Uma business school voltada para estudantes de engenharia. A idéia é estimular eles a criarem suas empresas durante as faculdades. Com isso queremos criar mais e mais empreendedores, principalmente de hard tech.\n",
+      "analysis": {
+        "score": 42,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 105,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 120,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 85,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 90,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 60,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 75,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 82,
+          "marketDepth": 68,
+          "unitEconomics": 54
+        },
+        "feedback": "Embora resolva um gap real na educação técnica, a proposta falha ao não detalhar como sustentará os altos custos de P&D inerentes ao hard tech. Sem uma integração direta com fundos de Deep Tech ou laboratórios, corre o risco de ser apenas mais um curso de 'empreendedorismo de palco' para engenheiros."
+      }
+    },
+    {
+      "id": "1771120150983",
+      "timestamp": "2026-02-15T01:49:10.983Z",
+      "text": "Coleira pra cachorro que detecta convulsões e envia uma mensagem para o dono (via Wifi/ WhatsApp).",
+      "analysis": {
+        "score": 42,
+        "radarData": [
+          {
+            "subject": "Market Depth",
+            "A": 65,
+            "fullMark": 150
+          },
+          {
+            "subject": "Coherence",
+            "A": 130,
+            "fullMark": 150
+          },
+          {
+            "subject": "Unit Econ",
+            "A": 40,
+            "fullMark": 150
+          },
+          {
+            "subject": "Scalability",
+            "A": 35,
+            "fullMark": 150
+          },
+          {
+            "subject": "Defensibility",
+            "A": 30,
+            "fullMark": 150
+          },
+          {
+            "subject": "Viral Loop",
+            "A": 25,
+            "fullMark": 150
+          }
+        ],
+        "detailedScores": {
+          "logicalCoherence": 88,
+          "marketDepth": 42,
+          "unitEconomics": 35
+        },
+        "feedback": "Embora resolva uma dor emocional crítica para um nicho específico, o modelo de negócio enfrenta as barreiras brutais do hardware e baixa defensibilidade contra gigantes do setor pet. O sucesso depende menos da coleira e mais da criação de um ecossistema de dados proprietários que grandes players ainda não capturaram."
+      }
+    }
+  ]
+}
