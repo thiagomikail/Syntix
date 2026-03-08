@@ -1,70 +1,140 @@
 "use server";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType, Schema } from "@google/generative-ai";
 import { InceptionAnalysis } from "@/types/inception";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
-export async function classifyIdea(idea: string, language: string = 'en'): Promise<InceptionAnalysis> {
+const inceptionSchema: Schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    classification: {
+      type: SchemaType.OBJECT,
+      properties: {
+        path: { type: SchemaType.STRING, description: "cash_cow | cash_farm | new_meat | ozempics | dead_end" },
+        label: { type: SchemaType.STRING, description: "Cash Cow | Cash Farm | New Meat | Ozempics | Dead End" },
+        badgeColor: { type: SchemaType.STRING, description: "hex string (Green for Cash Cow/Cash Farm/New Meat/Ozempics, Red for Dead End)" },
+        confidence: { type: SchemaType.NUMBER },
+        reasoning: { type: SchemaType.STRING, description: "A sharp, 1-sentence explanation of EXACTLY why this idea fits this archetype." }
+      },
+      required: ["path", "label", "badgeColor", "confidence", "reasoning"]
+    },
+    marketResearch: {
+      type: SchemaType.OBJECT,
+      properties: {
+        tam: { type: SchemaType.STRING, description: "Bottom-up calculation of Total Addressable Market" },
+        sam: { type: SchemaType.STRING, description: "Serviceable Available Market" },
+        som: { type: SchemaType.STRING, description: "Serviceable Obtainable Market" },
+        niche: { type: SchemaType.STRING, description: "Deep analysis of the specific entry niche" },
+        persona: { type: SchemaType.STRING, description: "Target customer persona: demographics, behaviors, pain points, buying patterns" },
+        competitors: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Top 3-5 main competitors with brief analysis of each" },
+        leveragePoints: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Key leverage points that can be exploited to gain advantage" }
+      },
+      required: ["tam", "sam", "som", "niche", "persona", "competitors", "leveragePoints"]
+    },
+    strategy: {
+      type: SchemaType.OBJECT,
+      properties: {
+        sales1M: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Concrete outreach/validation for Month 1" },
+        sales6M: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Scalable growth milestones for Month 6" },
+        monetization: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Possible monetization/revenue models for the business" },
+        distribution: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Distribution channel strategies to reach customers" },
+        moat: { type: SchemaType.STRING, description: "How to build a competitive MOAT (defensibility, switching costs, network effects, etc.)" }
+      },
+      required: ["sales1M", "sales6M", "monetization", "distribution", "moat"]
+    },
+    execution: {
+      type: SchemaType.OBJECT,
+      properties: {
+        first3Steps: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Immediate 3 steps" },
+        whatElse: { type: SchemaType.STRING, description: "Domain-specific insight." },
+        plan30d: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Key execution items for the first 30 days" },
+        plan90d: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Key execution items for 30-90 days" },
+        plan180d: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Key execution items for 90-180 days" },
+        teamCompetences: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Required team competences/skills to execute" },
+        partnershipSuggestions: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Strategic partnership suggestions" }
+      },
+      required: ["first3Steps", "whatElse", "plan30d", "plan90d", "plan180d", "teamCompetences", "partnershipSuggestions"]
+    }
+  },
+  required: ["classification", "marketResearch", "strategy", "execution"]
+};
+
+import { prisma } from "@/lib/prisma";
+
+export async function classifyIdea(ideaId: string, ideaText: string, language: string = 'en'): Promise<InceptionAnalysis> {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
-    generationConfig: { responseMimeType: "application/json" }
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: inceptionSchema
+    }
   });
 
   const prompt = `
     Act as "The Logic Engine", a strategic business analyst AI for the Syntix platform.
-    Analyze the following business idea: "${idea}"
+    Analyze the following business idea: "${ideaText}"
 
     Language: ${language} (Respond strictly in this language).
 
-    Your task is to classify this idea into ONE of the following 5 Entrepreneurial Paths:
+    Your task is to classify this idea into ONE of the following 5 Business Archetypes:
 
-    1. Path 1: The Cash-Flow Micro (Indie/Levels model) - Revenue first, solo-run, low capital, high margin.
-    2. Path 2: The Scalable Specialist (Ries/Aulet model) - B2B, niche dominance, scientific validation required.
-    3. Path 3: The Venture Engine (Graham/YC model) - High growth potential (>7%/week), VC-scale, large market.
-    4. Path 4: The Paradigm Shifter (Thiel/Hoffman model) - Monopoly potential, high-tech, winner-takes-most, hard to replicate.
-    5. Path 5: The Dead End (Drop it now) - Fundamentally flawed, illegal, physically impossible, or solved by a free feature in major OS/Apps.
+    1. Cash Cow — Low scale, high margin businesses. Solo-run, indie, revenue-first, high profitability per unit.
+    2. Cash Farm — Businesses that scale through specialists. Service companies, agencies, B2B consulting that grow with expert talent.
+    3. New Meat — Businesses that Venture Capital seeks to back. High risk, high potential return, large market, rapid growth.
+    4. Ozempics — Deep tech ventures that promote behavior change. Paradigm-shifting technology, hard to replicate, winner-takes-most.
+    5. Dead End — No return even with risk. Fundamentally flawed, illegal, physically impossible, or solved by existing free tools.
 
-    Then, provide deep strategic research.
+    Then, provide deep strategic research covering:
 
-    Return the result strictly as a valid JSON object matching this structure:
-    {
-      "classification": {
-        "path": "micro" | "specialist" | "venture" | "paradigm" | "dead_end",
-        "label": "The Cash-Flow Micro" | "The Scalable Specialist" | "The Venture Engine" | "The Paradigm Shifter" | "The Dead End",
-        "badgeColor": "hex string (Green for Micro/Specialist/Venture/Paradigm, Red for Dead End)",
-        "confidence": number,
-        "reasoning": "A sharp, 1-sentence explanation of EXACTLY why this idea fits this path."
-      },
-      "marketResearch": {
-        "tam": "Bottom-up calculation of Total Addressable Market (e.g., '$5B (10M users * $500/yr)')",
-        "sam": "Serviceable Available Market",
-        "som": "Serviceable Obtainable Market (Year 1 target)",
-        "niche": "Deep analysis of the specific entry niche"
-      },
-      "strategy": {
-        "sales1M": ["Step 1", "Step 2", "Step 3"], // Concrete outreach/validation for Month 1
-        "sales6M": ["Milestone 1", "Milestone 2"] // Scalable growth milestones for Month 6
-      },
-      "execution": {
-        "first3Steps": ["Immediate Action 1", "Immediate Action 2", "Immediate Action 3"],
-        "whatElse": "Domain-specific insight. For Path 4: Moat Analysis. For Path 1: 'Ship-it' checklist. For Path 5: 'Reality Check' explaining why to drop it."
-      }
-    }
+    A) MARKET RESEARCH:
+    - Target persona (demographics, behaviors, pain points, buying patterns)
+    - Top 3-5 competitors with analysis
+    - Exploitable leverage points
+    - TAM (Total Addressable Market), SAM (Serviceable Available Market), SOM (Serviceable Obtainable Market)
+
+    B) STRATEGY:
+    - Possible monetization/revenue models
+    - Distribution channel strategies
+    - How to build a competitive MOAT
+    - Concrete steps for Month 1 and Month 6
+
+    C) EXECUTION PLAN:
+    - Immediate first 3 steps
+    - 30-day plan items
+    - 90-day plan items
+    - 180-day plan items
+    - Required team competences
+    - Strategic partnership suggestions
+    - Domain-specific insight
+
+    Return the result strictly as a valid JSON object matching the schema.
   `;
 
   try {
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     // Clean up markdown code blocks if present (common issue with Gemini)
-    let cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    let cleanText = text.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
     const jsonStartIndex = cleanText.indexOf('{');
     const jsonEndIndex = cleanText.lastIndexOf('}');
     if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
       cleanText = cleanText.substring(jsonStartIndex, jsonEndIndex + 1);
     }
 
-    return JSON.parse(cleanText) as InceptionAnalysis;
+    const analysis = JSON.parse(cleanText) as InceptionAnalysis;
+
+    // Persist to Database
+    await prisma.idea.update({
+      where: { id: ideaId },
+      data: {
+        archetype: analysis.classification.path,
+        refinementJson: JSON.stringify(analysis),
+        status: "refinement"
+      }
+    });
+
+    return analysis;
   } catch (error) {
     console.error("Classification Analysis failed:", error);
     // Fallback error object
@@ -76,9 +146,9 @@ export async function classifyIdea(idea: string, language: string = 'en'): Promi
         confidence: 0,
         reasoning: "System was unable to classify this idea. Please try again."
       },
-      marketResearch: { tam: "N/A", sam: "N/A", som: "N/A", niche: "N/A" },
-      strategy: { sales1M: [], sales6M: [] },
-      execution: { first3Steps: [], whatElse: "Please try again." }
+      marketResearch: { tam: "N/A", sam: "N/A", som: "N/A", niche: "N/A", persona: "N/A", competitors: [], leveragePoints: [] },
+      strategy: { sales1M: [], sales6M: [], monetization: [], distribution: [], moat: "N/A" },
+      execution: { first3Steps: [], whatElse: "Please try again.", plan30d: [], plan90d: [], plan180d: [], teamCompetences: [], partnershipSuggestions: [] }
     };
   }
 }

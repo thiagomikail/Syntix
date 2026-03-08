@@ -5,6 +5,8 @@ export interface RadarDataPoint {
 }
 
 export interface AnalysisResult {
+    title?: string;
+    imagePrompt?: string;
     score: number;
     radarData: RadarDataPoint[];
     detailedScores: {
@@ -20,7 +22,7 @@ export interface AnalysisResult {
     feedback: string;
 }
 
-export type Persona = "skeptic" | "growth" | "cfo";
+export type Persona = "skeptic" | "growth" | "cfo" | "builder";
 
 export interface Message {
     id: string;

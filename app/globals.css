@@ -1,109 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-muted: var(--muted);
-  --color-border: var(--border);
+  /* Colors */
+  --color-primary: #FF6B00;
+  --color-background-light: #F2F2F2;
+  --color-background-dark: #0A0A0A;
+  --color-accent-cyan: #FF6B00;
+  /* Reusing orange as accent for consistency if needed or keep cyan if desired. Let's stick to Orange. */
 
-  --font-sans: var(--font-inter);
-}
+  /* Font */
+  --font-display: "Inter", "Geist", sans-serif;
 
-:root {
-  /* Neon Flow Theme (Default) */
-  --background: 240 10% 4%;
-  /* #0a0a0f - Deep Space Blue */
-  --foreground: 0 0% 98%;
-
-  --card: 240 10% 6%;
-  --card-foreground: 0 0% 98%;
-
-  --popover: 240 10% 6%;
-  --popover-foreground: 0 0% 98%;
-
-  --primary: 157 100% 50%;
-  /* #00ff9d - Neon Green */
-  --primary-foreground: 240 10% 4%;
-  /* Dark text on neon */
-
-  --secondary: 260 100% 65%;
-  /* #bd00ff - Neon Purple Hint (used subtly) */
-  /* Re-mapping secondary to be subtle dark purple for UI elements */
-  --secondary: 260 30% 15%;
-  --secondary-foreground: 0 0% 98%;
-
-  --muted: 240 5% 15%;
-  --muted-foreground: 240 5% 65%;
-
-  --accent: 157 100% 50%;
-  --accent-foreground: 240 10% 4%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 240 5% 20%;
-  --input: 240 5% 20%;
-  --ring: 157 100% 50%;
-  --radius: 0.75rem;
-}
-
-.light {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
+  /* Shadows */
+  --shadow-glow-primary: 0 0 20px rgba(255, 107, 0, 0.3);
+  --shadow-glow-cyan: 0 0 20px rgba(255, 107, 0, 0.3);
+  /* Replacing cyan glow with orange glow */
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
-  html,
   body {
-    @apply bg-background text-foreground;
-    background-color: #0a0a0f;
-    /* Force dark background */
-    background-image:
-      radial-gradient(circle at 15% 50%, rgba(112, 0, 255, 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(0, 255, 157, 0.08), transparent 25%);
-    background-attachment: fixed;
-    min-height: 100vh;
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: max(884px, 100dvh);
+    background-color: var(--color-background-dark);
+    color: #FFFFFF;
   }
 }
 
-/* Enhancements */
-.glass-panel {
-  @apply bg-secondary/30 backdrop-blur-xl border border-white/10 shadow-lg;
+/* Dot grid background utility */
+.dot-grid {
+  background-image: radial-gradient(circle at 2px 2px, #FF6B00 1px, transparent 0);
+  background-size: 24px 24px;
 }
 
-.neon-glow {
-  box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
-}
-
-.neon-text {
-  text-shadow: 0 0 5px rgba(0, 255, 157, 0.5);
-}
-
-/* Scrollbar Hide */
+/* Scrollbar hide */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

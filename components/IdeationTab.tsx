@@ -1,237 +1,344 @@
 "use client";
 
-import { useState } from "react";
-import { useLanguage } from "@/components/LanguageContext";
-import { useGamification } from "@/components/GamificationContext";
-import { Target, Search, Monitor, Zap, ArrowRight, Loader2, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { generateConcept } from "@/app/actions/ideation";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { generateChannelIdeas } from "@/app/actions/ideation";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/components/LanguageContext";
+import { VoiceInput } from "@/components/VoiceInput";
+import { ArenaCarousel } from "@/components/ArenaCarousel";
 
 interface IdeationTabProps {
-    onIdeaGenerated?: (idea: string) => void;
+    ideaId: string;
+    onIdeaGenerated: (text: string) => void;
+    autoIgnite?: string;
 }
 
-export function IdeationTab({ onIdeaGenerated }: IdeationTabProps) {
-    const { t, language } = useLanguage();
-    const { addXP } = useGamification();
+function AutoResizeTextarea({ value, onChange, placeholder, className, disabled }: {
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    placeholder?: string;
+    className?: string;
+    disabled?: boolean;
+}) {
+    const ref = useRef<HTMLTextAreaElement>(null);
+    useEffect(() => {
+        if (ref.current) {
+            ref.current.style.height = "auto";
+            ref.current.style.height = ref.current.scrollHeight + "px";
+        }
+    }, [value]);
+    return (
+        <textarea
+            ref={ref}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={className}
+            rows={1}
+        />
+    );
+}
+
+const authorSuggestions: Record<string, { name: string; focus: string }[]> = {
+    pain: [
+        { name: "Clayton Christensen", focus: "Disruptive Innovation" },
+        { name: "Eric Ries", focus: "Lean Startup" },
+        { name: "Steve Blank", focus: "Customer Development" },
+    ],
+    technology: [
+        { name: "Peter Thiel", focus: "Zero to One / Monopoly" },
+        { name: "Pieter Levels", focus: "Indie Hacking" },
+        { name: "Sam Altman", focus: "AI-First Ventures" },
+    ],
+    market: [
+        { name: "Bill Aulet", focus: "Disciplined Entrepreneurship" },
+        { name: "Alexander Osterwalder", focus: "Business Model Canvas" },
+        { name: "Clayton Christensen", focus: "Jobs-to-be-Done" },
+    ],
+    shocks: [
+        { name: "Nassim Taleb", focus: "Antifragile / Black Swan" },
+        { name: "Reid Hoffman", focus: "Blitzscaling" },
+        { name: "Peter Diamandis", focus: "Bold / Exponential Thinking" },
+    ],
+};
+
+export function IdeationTab({ ideaId, onIdeaGenerated, autoIgnite }: IdeationTabProps) {
+    const { t } = useLanguage();
+    const [input, setInput] = useState(autoIgnite || "");
     const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
-    const [input, setInput] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
+    const [generatedText, setGeneratedText] = useState<string | null>(null);
 
     const channels = [
         {
-            id: "Market Pull",
-            icon: Search,
-            color: "blue",
-            title: t.ideation.channels.marketPull.title,
-            description: t.ideation.channels.marketPull.description,
-            prompt: t.ideation.channels.marketPull.prompt
+            id: "pain",
+            title: "Pain-Storming",
+            icon: "mood_bad",
+            description: "Turn frustrations into business opportunities. Describe a problem you've faced.",
+            topics: ["Healthcare access", "Remote work fatigue", "Food waste", "Financial literacy", "Supply chain delays"],
         },
         {
-            id: "Pain-Storming",
-            icon: Target,
-            color: "red",
-            title: t.ideation.channels.painStorming.title,
-            description: t.ideation.channels.painStorming.description,
-            prompt: t.ideation.channels.painStorming.prompt
+            id: "technology",
+            title: "Technology",
+            icon: "biotech",
+            description: "Explore cutting-edge tech: AI world models, nanotech, swarm robotics, quantum computing.",
+            topics: ["AI world models", "Swarm robotics", "Nanotechnology", "Quantum computing", "Brain-computer interfaces"],
         },
         {
-            id: "Tech Push",
-            icon: Monitor,
-            color: "purple",
-            title: t.ideation.channels.techPush.title,
-            description: t.ideation.channels.techPush.description,
-            prompt: t.ideation.channels.techPush.prompt
+            id: "market",
+            title: "Demandas de Mercado",
+            icon: "trending_up",
+            description: "Open innovation bids, FINEP calls, DoE opportunities, and untapped market demands.",
+            topics: ["Open innovation RFPs", "FINEP public calls", "US DoE grants", "EU Horizon Europe", "Climate tech tenders"],
         },
         {
-            id: "External Shocks",
-            icon: Zap,
-            color: "yellow",
-            title: t.ideation.channels.externalShocks.title,
-            description: t.ideation.channels.externalShocks.description,
-            prompt: t.ideation.channels.externalShocks.prompt
-        }
+            id: "shocks",
+            title: "Choques Externos",
+            icon: "bolt",
+            description: "Major disruptions happening now. How can you ride the wave?",
+            topics: ["AI workforce shift", "De-globalization", "Energy transition", "Aging populations", "Post-pandemic behaviors"],
+        },
     ];
 
-    const handleIgnite = async (channelId?: string, customInput?: string) => {
-        const activeChannel = channelId || selectedChannel || "Direct Feed";
-        const activeInput = customInput || input;
-
-        if (!activeInput.trim()) return;
-
-        console.log("Igniting concept...", { activeChannel, activeInput, language });
+    const handleIgnite = useCallback(async (channelId?: string, text?: string) => {
+        const finalInput = text || input;
+        if (!finalInput.trim() || isGenerating) return null;
         setIsGenerating(true);
-        try {
-            const result = await generateConcept(activeChannel, activeInput, language);
-            console.log("Concept generation result:", result);
+        setGeneratedText(null);
 
-            if (result && !result.startsWith("Error:")) {
-                addXP(50, "Ignited Idea"); // Award XP
-                if (onIdeaGenerated) {
-                    onIdeaGenerated(result);
-                } else {
-                    console.warn("onIdeaGenerated callback is missing!");
-                }
-            } else {
-                alert(`The Input Manifold failed to ignite: ${result || "Unknown error"}`);
-            }
+        try {
+            const result = await generateChannelIdeas(ideaId, channelId || selectedChannel || "direct", finalInput);
+            setGeneratedText(result);
+            return result;
         } catch (error) {
-            console.error("Failed to generate concept", error);
-            alert("Connection error. Please try again.");
+            console.error("Generation failed:", error);
+            return null;
         } finally {
             setIsGenerating(false);
         }
+    }, [input, selectedChannel, isGenerating, ideaId]);
+
+    const autoIgniteFired = useRef(false);
+    useEffect(() => {
+        if (autoIgnite && !autoIgniteFired.current) {
+            autoIgniteFired.current = true;
+            handleIgnite("direct", autoIgnite).then((res) => {
+                if (res) {
+                    onIdeaGenerated(res);
+                }
+            });
+        }
+    }, [autoIgnite, handleIgnite, onIdeaGenerated]);
+
+    const handleProceed = () => {
+        if (generatedText) {
+            onIdeaGenerated(generatedText);
+        }
     };
 
+    const handleVoiceTranscript = useCallback((transcript: string) => {
+        setInput(prev => prev ? prev + " " + transcript : transcript);
+    }, []);
 
+    const activeAuthors = selectedChannel ? authorSuggestions[selectedChannel] || [] : [];
 
     return (
-        <div className="flex flex-col h-full overflow-y-auto p-6 gap-6 max-w-7xl mx-auto w-full animate-in fade-in duration-700 scrollbar-hide relative pb-20">
-            <div className="text-center py-8">
-                <h1 className="text-4xl font-bold bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent mb-4">
-                    {t.ideation.title}
-                </h1>
-                <p className="text-muted-foreground max-w-lg mx-auto">
-                    {t.ideation.subtitle}
-                </p>
-            </div>
+        <div className="p-6 md:p-10 max-w-4xl mx-auto space-y-8 text-white">
+            {/* Hero Input */}
+            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-[#1A1A1A] p-6 md:p-8">
+                <div className="absolute -top-20 -right-20 size-40 rounded-full bg-primary/10 blur-[60px]"></div>
+                <div className="relative z-10">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
+                        <span className="text-primary">INPUT</span> YOUR IDEA
+                    </h1>
+                    <p className="text-sm text-slate-400 mb-6">Describe your concept, then ignite the engine.</p>
 
-            {/* Direct Input (Open Topic) */}
-            <div className="w-full max-w-2xl mx-auto mb-8 relative z-20">
-                <div className="bg-secondary/10 border border-primary/20 p-1 rounded-xl shadow-lg backdrop-blur-sm focus-within:ring-2 focus-within:ring-primary/50 transition-all">
-                    <AutoResizeTextarea
-                        value={selectedChannel === null ? input : ""}
-                        onChange={(e) => {
-                            setSelectedChannel(null); // Clear channel selection if typing here
-                            setInput(e.target.value);
-                        }}
-                        placeholder={language === 'pt' ? "Descreva uma ideia livremente ou selecione um canal abaixo..." : "Describe an idea freely or select a channel below..."}
-                        className="w-full bg-transparent border-none text-lg p-4 focus:ring-0 placeholder:text-muted-foreground/50 min-h-[80px]"
-                    />
-                    <div className="flex justify-between items-center px-4 pb-2">
-                        <span className="text-xs text-muted-foreground uppercase tracking-widest font-mono">
-                            {language === 'pt' ? "Entrada Livre" : "Direct Feed"}
-                        </span>
+                    <div className="bg-black/50 rounded-xl p-2 border border-primary/10">
+                        <AutoResizeTextarea
+                            value={selectedChannel === null ? input : ""}
+                            onChange={(e) => { if (selectedChannel === null) setInput(e.target.value); }}
+                            placeholder="Describe your business idea..."
+                            disabled={!!selectedChannel || isGenerating}
+                            className="w-full bg-transparent text-white resize-none p-4 text-base placeholder:text-slate-500 focus:outline-none disabled:opacity-50"
+                        />
+                    </div>
+
+                    <div className="flex gap-2 mt-4">
                         <button
-                            onClick={() => handleIgnite("Direct Feed", input)}
+                            onClick={() => handleIgnite("direct", input)}
                             disabled={!input.trim() || !!selectedChannel || isGenerating}
-                            className="bg-primary hover:bg-primary/90 text-primary-foreground p-2 rounded-lg transition-all disabled:opacity-0 disabled:pointer-events-none"
+                            className={cn(
+                                "flex h-12 flex-1 md:flex-none items-center justify-center gap-2 rounded-xl px-8 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all",
+                                (!input.trim() || !!selectedChannel || isGenerating)
+                                    ? "bg-primary/50 cursor-not-allowed"
+                                    : "bg-primary hover:shadow-glow-primary"
+                            )}
                         >
-                            {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
+                            {isGenerating ? (
+                                <><span className="material-symbols-outlined animate-spin text-lg">progress_activity</span> Generating...</>
+                            ) : (
+                                <><span className="material-symbols-outlined text-lg">bolt</span> IGNITE</>
+                            )}
                         </button>
+                        <VoiceInput
+                            onTranscript={handleVoiceTranscript}
+                            disabled={!!selectedChannel || isGenerating}
+                        />
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                {channels.map((channel) => {
-                    const isSelected = selectedChannel === channel.id;
-                    const isOtherSelected = selectedChannel !== null && !isSelected;
+            {/* Arena Carousel - Moved up here for immediate visibility */}
+            <div className="mt-8 mb-8">
+                <ArenaCarousel />
+            </div>
 
-                    return (
-                        <motion.div
-                            key={channel.id}
-                            layout
-                            onClick={() => {
-                                setSelectedChannel(isSelected ? null : channel.id);
-                                if (!isSelected) setInput(""); // Clear input when switching channels
-                            }}
-                            className={cn(
-                                "bg-secondary/10 border p-6 rounded-xl transition-all cursor-pointer group relative overflow-hidden",
-                                isSelected ? "border-primary bg-secondary/20 ring-2 ring-primary/20 col-span-1 md:col-span-2" : "border-border hover:bg-secondary/20",
-                                isOtherSelected ? "opacity-50 scale-95" : "opacity-100"
-                            )}
-                        >
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className={cn(
-                                        "p-3 rounded-xl transition-colors",
-                                        `bg-${channel.color}-500/10 text-${channel.color}-400 group-hover:text-${channel.color}-300`
-                                    )}>
-                                        <channel.icon className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold">{channel.title}</h3>
-                                        {!isSelected && (
-                                            <p className="text-sm text-muted-foreground mt-1">{channel.description}</p>
-                                        )}
-                                    </div>
-                                </div>
-                                {isSelected && (
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setSelectedChannel(null); }}
-                                        className="text-muted-foreground hover:text-foreground text-sm"
-                                    >
-                                        {t.common.close}
-                                    </button>
+            {/* Channel Grid */}
+            <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-primary mb-4">Or explore a channel</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {channels.map((channel) => {
+                        const isSelected = selectedChannel === channel.id;
+                        return (
+                            <motion.div
+                                key={channel.id}
+                                layout
+                                onClick={() => {
+                                    if (isSelected) { setSelectedChannel(null); }
+                                    else { setSelectedChannel(channel.id); setInput(""); }
+                                }}
+                                className={cn(
+                                    "group flex flex-col rounded-2xl border p-5 transition-all cursor-pointer text-white",
+                                    isSelected
+                                        ? "border-primary bg-primary/5 col-span-1 sm:col-span-2 ring-2 ring-primary"
+                                        : "border-primary/10 bg-[#1A1A1A] hover:bg-[#222222] hover:border-primary/50",
+                                    selectedChannel && !isSelected ? "opacity-40 pointer-events-none" : ""
                                 )}
-                            </div>
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                            <span className="material-symbols-outlined">{channel.icon}</span>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold tracking-tight">{channel.title}</h3>
+                                            {!isSelected && <p className="text-xs text-slate-400">{channel.description}</p>}
+                                        </div>
+                                    </div>
+                                    {isSelected && (
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setSelectedChannel(null); }}
+                                            className="text-xs font-bold text-slate-400 hover:text-primary transition-colors"
+                                        >
+                                            CLOSE
+                                        </button>
+                                    )}
+                                </div>
 
-                            <AnimatePresence>
-                                {isSelected && (
-                                    <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        className="mt-4 border-t border-white/5 pt-4"
-                                    >
-                                        <label className="text-sm font-mono uppercase tracking-wider text-muted-foreground block mb-3">
-                                            {channel.prompt}
-                                        </label>
-                                        <AutoResizeTextarea
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            placeholder={t.inception.placeholder}
-                                            className="w-full bg-black/20 border border-white/10 rounded-lg p-4 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px]"
-                                            autoFocus
-                                        />
-                                        <div className="flex justify-end mt-4">
+                                <AnimatePresence>
+                                    {isSelected && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="mt-4 space-y-3"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <div className="mb-4">
+                                                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Hot Topics</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {channel.topics.map((topic, i) => (
+                                                        <button
+                                                            key={i}
+                                                            onClick={(e) => { e.stopPropagation(); setInput((prev) => prev ? prev + " " + topic : topic); }}
+                                                            className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                                                        >
+                                                            {topic}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <AutoResizeTextarea
+                                                    value={input}
+                                                    onChange={(e) => setInput(e.target.value)}
+                                                    placeholder={`Describe your ${channel.title.toLowerCase()} idea...`}
+                                                    disabled={isGenerating}
+                                                    className="flex-1 bg-black/50 text-white border border-primary/10 rounded-xl p-4 resize-none text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                />
+                                                <VoiceInput
+                                                    onTranscript={handleVoiceTranscript}
+                                                    disabled={isGenerating}
+                                                    className="self-end"
+                                                />
+                                            </div>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleIgnite(); }}
                                                 disabled={!input.trim() || isGenerating}
-                                                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className={cn(
+                                                    "flex h-11 items-center justify-center gap-2 rounded-xl px-6 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all",
+                                                    (!input.trim() || isGenerating) ? "bg-primary/50 cursor-not-allowed" : "bg-primary hover:shadow-glow-primary"
+                                                )}
                                             >
                                                 {isGenerating ? (
-                                                    <>
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                        {t.ideation.synthesizing}
-                                                    </>
+                                                    <><span className="material-symbols-outlined animate-spin">progress_activity</span> Generating...</>
                                                 ) : (
-                                                    <>
-                                                        <Sparkles className="w-4 h-4" />
-                                                        {t.ideation.ignite}
-                                                        <ArrowRight className="w-4 h-4" />
-                                                    </>
+                                                    <><span className="material-symbols-outlined">bolt</span> IGNITE</>
                                                 )}
                                             </button>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
-                    );
-                })}
+
+                                            {/* Author Suggestions */}
+                                            {activeAuthors.length > 0 && (
+                                                <div className="mt-2 pt-3 border-t border-primary/10">
+                                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Thought Leaders in this Space</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {activeAuthors.map((author, i) => (
+                                                            <span key={i} className="inline-flex items-center gap-1 rounded-full bg-slate-800 px-2.5 py-1 text-[10px] text-slate-300 border border-slate-700">
+                                                                <span className="material-symbols-outlined text-xs text-primary">person</span>
+                                                                <span className="font-semibold">{author.name}</span>
+                                                                <span className="text-slate-500">· {author.focus}</span>
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        );
+                    })}
+                </div>
             </div>
+
+            {/* Generated Result */}
+            <AnimatePresence>
+                {generatedText && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="rounded-2xl border border-primary/30 bg-[#1A1A1A] p-6 shadow-glow-primary"
+                    >
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="material-symbols-outlined text-primary">auto_awesome</span>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Generated Concept</h3>
+                        </div>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap mb-6 text-white">{generatedText}</p>
+                        <button
+                            onClick={handleProceed}
+                            className="flex h-11 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/25 hover:shadow-glow-primary transition-all"
+                        >
+                            <span className="material-symbols-outlined">arrow_forward</span>
+                            Proceed to Refino
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Arena Carousel was moved up */}
         </div>
     );
 }
-
-const AutoResizeTextarea = ({ value, onChange, placeholder, className, autoFocus }: { value: string, onChange: (e: any) => void, placeholder: string, className?: string, autoFocus?: boolean }) => {
-    return (
-        <textarea
-            value={value}
-            onChange={(e) => {
-                onChange(e);
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
-            }}
-            onClick={(e) => e.stopPropagation()}
-            className={cn("resize-none overflow-hidden", className)}
-            placeholder={placeholder}
-            autoFocus={autoFocus}
-            rows={3}
-            style={{ height: 'auto' }}
-        />
-    );
-};

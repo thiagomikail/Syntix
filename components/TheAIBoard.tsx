@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useLanguage } from "./LanguageContext";
-import { Send, TrendingUp, ShieldAlert, BadgeDollarSign, User } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Message, Persona } from "@/types/analysis";
 import { chatWithBoard } from "@/app/actions/chat-board";
@@ -12,21 +10,15 @@ interface TheAIBoardProps {
     onMessagesChange?: (messages: Message[]) => void;
     onBetaReport?: () => void;
     showBetaReport?: boolean;
+    initialMessages?: Message[];
 }
 
-export function TheAIBoard({ onMessagesChange, onBetaReport, showBetaReport }: TheAIBoardProps) {
-    const { t, language } = useLanguage();
-    const [messages, setMessages] = useState<Message[]>([]);
+export function TheAIBoard({ onMessagesChange, onBetaReport, showBetaReport, initialMessages = [] }: TheAIBoardProps) {
+    const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
 
-    // Notify parent of message changes
-    useEffect(() => {
-        onMessagesChange?.(messages);
-    }, [messages, onMessagesChange]);
-
-    // Initial greeting removed to fix "Skeptic always there" issue
-    // The parent component controls the chat state or we wait for interaction.
+    useEffect(() => { onMessagesChange?.(messages); }, [messages, onMessagesChange]);
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,7 +36,7 @@ export function TheAIBoard({ onMessagesChange, onBetaReport, showBetaReport }: T
         setIsTyping(true);
 
         try {
-            const aiMsg = await chatWithBoard(messages, input, language);
+            const aiMsg = await chatWithBoard(messages, input, "en");
             setMessages((prev) => [...prev, aiMsg]);
         } catch (error) {
             console.error("Failed to get AI response", error);
@@ -55,53 +47,66 @@ export function TheAIBoard({ onMessagesChange, onBetaReport, showBetaReport }: T
 
     const getPersonaIcon = (persona?: Persona) => {
         switch (persona) {
-            case "skeptic": return <ShieldAlert className="w-4 h-4 text-red-500" />;
-            case "growth": return <TrendingUp className="w-4 h-4 text-[#00FF41]" />;
-            case "cfo": return <BadgeDollarSign className="w-4 h-4 text-blue-500" />;
-            default: return <User className="w-4 h-4" />;
+            case "skeptic": return "shield";
+            case "growth": return "trending_up";
+            case "cfo": return "attach_money";
+            case "builder": return "construction";
+            default: return "person";
+        }
+    };
+
+    const getPersonaColor = (persona?: Persona) => {
+        switch (persona) {
+            case "skeptic": return "text-red-400";
+            case "growth": return "text-accent-cyan";
+            case "cfo": return "text-blue-400";
+            case "builder": return "text-amber-400";
+            default: return "text-slate-400";
         }
     };
 
     const getPersonaName = (persona?: Persona) => {
         switch (persona) {
-            case "skeptic": return t.board.skeptic;
-            case "growth": return t.board.growth;
-            case "cfo": return t.board.cfo;
+            case "skeptic": return "Cético";
+            case "growth": return "Growth";
+            case "cfo": return "Financeiro";
+            case "builder": return "Builder";
             default: return "User";
         }
     };
 
     return (
-        <div className="w-full flex flex-col h-full border-none bg-transparent">
-            <div className="p-3 border-b border-border bg-secondary/10 flex flex-col xl:flex-row items-center justify-between gap-2 shrink-0">
-                <div className="flex flex-col gap-1 w-full xl:w-auto">
-                    <h3 className="font-mono font-bold uppercase tracking-wider text-sm whitespace-nowrap">
-                        {t.board.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-2 text-[10px] text-muted">
-                        <span className="flex items-center gap-1 bg-background/50 px-1.5 py-0.5 rounded border border-border/50"><ShieldAlert className="w-3 h-3 text-red-400" /> {t.board.skeptic}</span>
-                        <span className="flex items-center gap-1 bg-background/50 px-1.5 py-0.5 rounded border border-border/50"><TrendingUp className="w-3 h-3 text-green-400" /> {t.board.growth}</span>
-                        <span className="flex items-center gap-1 bg-background/50 px-1.5 py-0.5 rounded border border-border/50"><BadgeDollarSign className="w-3 h-3 text-blue-400" /> {t.board.cfo}</span>
+        <div className="w-full flex flex-col h-full">
+            {/* Header */}
+            <div className="p-3 border-b border-primary/10 flex items-center justify-between shrink-0">
+                <div>
+                    <h3 className="font-bold uppercase tracking-widest text-xs">AI Board</h3>
+                    <div className="flex gap-2 mt-1">
+                        {(["skeptic", "growth", "cfo", "builder"] as Persona[]).map((p) => (
+                            <span key={p} className="flex items-center gap-0.5 text-[10px]">
+                                <span className={cn("material-symbols-outlined text-xs", getPersonaColor(p))}>{getPersonaIcon(p)}</span>
+                                <span className="text-slate-500">{getPersonaName(p)}</span>
+                            </span>
+                        ))}
                     </div>
                 </div>
-
-                {/* Beta Report Button - Integrated */}
                 {showBetaReport && onBetaReport && (
                     <button
                         onClick={onBetaReport}
-                        className="flex items-center gap-2 px-2 py-1 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/30 rounded text-[10px] font-mono uppercase tracking-wider transition-all whitespace-nowrap self-end xl:self-center"
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-accent-cyan/10 border border-accent-cyan/20 text-[10px] font-bold text-accent-cyan hover:bg-accent-cyan/20 transition-colors"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /></svg>
+                        <span className="material-symbols-outlined text-xs">description</span>
                         Beta Report
                     </button>
                 )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent">
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-hide">
                 {messages.length === 0 && (
                     <div className="h-full flex flex-col items-center justify-center opacity-30 text-center p-4">
-                        <User className="w-8 h-8 mb-2" />
-                        <p className="text-xs font-mono">Board is waiting for topics...</p>
+                        <span className="material-symbols-outlined text-3xl mb-2">forum</span>
+                        <p className="text-xs">Board is waiting for topics...</p>
                     </div>
                 )}
                 {messages.map((msg) => (
@@ -109,26 +114,24 @@ export function TheAIBoard({ onMessagesChange, onBetaReport, showBetaReport }: T
                         key={msg.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={cn(
-                            "flex gap-3 max-w-[90%]",
-                            msg.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
-                        )}
+                        className={cn("flex gap-2 max-w-[90%]", msg.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto")}
                     >
                         <div className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center shrink-0 border border-border mt-1",
-                            msg.role === "user" ? "bg-primary text-background" : "bg-secondary"
+                            "size-6 rounded-full flex items-center justify-center shrink-0 mt-1",
+                            msg.role === "user" ? "bg-primary text-white" : "bg-slate-700 text-white"
                         )}>
-                            {msg.role === "user" ? <User className="w-3 h-3" /> : getPersonaIcon(msg.persona)}
+                            <span className={cn("material-symbols-outlined text-xs", msg.role !== "user" && getPersonaColor(msg.persona))}>
+                                {msg.role === "user" ? "person" : getPersonaIcon(msg.persona)}
+                            </span>
                         </div>
-
                         <div className={cn(
-                            "p-2.5 rounded-lg text-xs leading-relaxed border",
+                            "p-2.5 rounded-xl text-xs leading-relaxed border",
                             msg.role === "user"
-                                ? "bg-primary/10 border-primary/20 text-foreground rounded-tr-none"
-                                : "bg-secondary/10 border-border rounded-tl-none"
+                                ? "bg-primary/10 border-primary/20 rounded-tr-none"
+                                : "bg-slate-800/50 border-primary/10 rounded-tl-none"
                         )}>
                             {msg.role !== "user" && (
-                                <div className="text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
+                                <div className={cn("text-[10px] font-bold uppercase tracking-wider mb-1", getPersonaColor(msg.persona))}>
                                     {getPersonaName(msg.persona)}
                                 </div>
                             )}
@@ -137,28 +140,29 @@ export function TheAIBoard({ onMessagesChange, onBetaReport, showBetaReport }: T
                     </motion.div>
                 ))}
                 {isTyping && (
-                    <div className="flex gap-3 max-w-[80%] mr-auto">
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 border border-border bg-secondary">
+                    <div className="flex gap-2 mr-auto">
+                        <div className="size-6 rounded-full bg-slate-700 flex items-center justify-center">
                             <LoaderDots />
                         </div>
                     </div>
                 )}
             </div>
 
-            <form onSubmit={handleSend} className="p-3 border-t border-border bg-secondary/10 flex gap-2 shrink-0">
+            {/* Input */}
+            <form onSubmit={handleSend} className="p-3 border-t border-primary/10 flex gap-2 shrink-0">
                 <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Ask the board..."
-                    className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-xs focus:outline-none focus:border-primary transition-colors min-w-0"
+                    className="flex-1 bg-[#222222] text-white placeholder:text-slate-500 border border-primary/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-primary/30 transition-colors min-w-0"
                 />
                 <button
                     type="submit"
                     disabled={!input.trim()}
-                    className="bg-foreground text-background p-2 rounded-md hover:bg-foreground/80 disabled:opacity-50 transition-colors shrink-0"
+                    className="bg-primary text-white p-2 rounded-lg disabled:opacity-50 transition-colors shadow-lg shadow-primary/25 hover:shadow-glow-primary shrink-0"
                 >
-                    <Send className="w-3 h-3" />
+                    <span className="material-symbols-outlined text-sm">send</span>
                 </button>
             </form>
         </div>
@@ -166,9 +170,9 @@ export function TheAIBoard({ onMessagesChange, onBetaReport, showBetaReport }: T
 }
 
 const LoaderDots = () => (
-    <div className="flex space-x-1">
-        <div className="w-1 h-1 bg-muted rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-        <div className="w-1 h-1 bg-muted rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-        <div className="w-1 h-1 bg-muted rounded-full animate-bounce"></div>
+    <div className="flex space-x-0.5">
+        <div className="size-1 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+        <div className="size-1 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+        <div className="size-1 bg-slate-400 rounded-full animate-bounce"></div>
     </div>
 );

@@ -28,9 +28,13 @@ export async function analyzeIdea(idea: string, language: string, context?: stri
         - Market Depth (Real-time TAM/SAM/SOM estimates): Why is the market massive or tiny?
         - Unit Economics (Scalability stress-test): Why is it profitable or a money pit?
     4. Provide a brief, executive summary (max 2 sentences) of your verdict.
+    5. Generate a catchy, 2-to-4 word auto-title for this venture.
+    6. Generate a highly detailed, conceptual image prompt for the "Nano Banana" image generator to create a cyberpunk/neon startup poster for this idea.
 
     Return the result strictly as a valid JSON object with the following structure:
     {
+      "title": "Venture Name",
+      "imagePrompt": "Detailed prompt for Nano Banana...",
       "score": number,
       "radarData": [
         { "subject": "Market Depth", "A": number, "fullMark": 150 },
@@ -76,6 +80,8 @@ export async function analyzeIdea(idea: string, language: string, context?: stri
     console.error("AI Analysis Error:", error);
     // Fallback in case of error
     return {
+      title: "Untitled Venture",
+      imagePrompt: "",
       score: 50,
       radarData: [],
       detailedScores: {

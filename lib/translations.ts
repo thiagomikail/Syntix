@@ -1,7 +1,11 @@
+import enMessages from '@/messages/en.json';
+import ptMessages from '@/messages/pt.json';
+
 export type Language = 'pt' | 'en';
 
 export const translations = {
     pt: {
+        ...ptMessages,
         nav: {
             ideation: "Ideação",
             inception: "Inception",
@@ -38,25 +42,25 @@ export const translations = {
             ignite: "Gerar Conceito",
             synthesizing: "Sintetizando...",
             channels: {
-                marketPull: {
-                    title: "Canal A: Demanda de Mercado",
-                    description: "Editais, RFPs e demandas explícitas de mercado.",
-                    prompt: "Que demanda de mercado, RFP ou solicitação você está vendo?"
+                pain: {
+                    title: "Fricção & Dor",
+                    desc: "Resolva frustrações óbvias que você mesmo enfrenta",
+                    topics: ["Gambiarras caras", "Entrada manual de dados", "Processos quebrados", "Suporte ruim"]
                 },
-                painStorming: {
-                    title: "Canal B: Pain-Storming",
-                    description: "Logs de fricção, processos quebrados e gambiarras caras.",
-                    prompt: "Qual processo está quebrado, frustrante ou muito caro?"
+                deeptech: {
+                    title: "Tecnologia de Fronteira",
+                    desc: "Deep tech, pesquisa avançada, novos materiais",
+                    topics: ["IA Aplicada", "Biologia Sintética", "Novo Armazenamento de Energia", "Sensores Quânticos"]
                 },
-                techPush: {
-                    title: "Canal C: Tech Push",
-                    description: "Ativos, patentes e capacidades únicas procurando um problema.",
-                    prompt: "Que ativo único, PI ou capacidade você possui?"
+                scale: {
+                    title: "Escalar & Diferenciar",
+                    desc: "Levando modelos existentes a novos nichos ou escalas",
+                    topics: ["X para Y", "SaaS Vertical", "Desmembramento de plataformas", "Comoditização de serviços"]
                 },
-                externalShocks: {
-                    title: "Canal D: Choques Externos",
-                    description: "Mudanças regulatórias, geopolíticas e 'Por que agora?'.",
-                    prompt: "Que mudança regulatória, geopolítica ou macro acabou de acontecer?"
+                market: {
+                    title: "Tendências Emergentes",
+                    desc: "Atração do mercado, mudanças regulatórias, macro",
+                    topics: ["Mudanças demográficas", "Novas leis de compliance", "Infraestrutura remota", "Ferramentas para criadores"]
                 }
             }
         },
@@ -108,10 +112,14 @@ export const translations = {
         },
         board: {
             title: "O Conselho",
-            subtitle: "Feedback de Personas de IA"
+            subtitle: "Feedback de Personas de IA",
+            skeptic: "O Cético",
+            growth: "O Hacker de Crescimento",
+            cfo: "O CFO"
         }
     },
     en: {
+        ...enMessages,
         nav: {
             ideation: "Ideation",
             inception: "Inception",
@@ -148,25 +156,25 @@ export const translations = {
             ignite: "Ignite Concept",
             synthesizing: "Synthesizing...",
             channels: {
-                marketPull: {
-                    title: "Channel A: Market Pull",
-                    description: "RFPs, tenders, and explicit market demands.",
-                    prompt: "What market demand, RFP, or request are you seeing?"
+                pain: {
+                    title: "Friction & Pain",
+                    desc: "Scratch your own itch, solve clear frustrations",
+                    topics: ["Expensive workarounds", "Manual data entry", "Broken workflows", "Bad customer support"]
                 },
-                painStorming: {
-                    title: "Channel B: Pain-Storming",
-                    description: "Friction logs, broken processes, and expensive workarounds.",
-                    prompt: "What process is broken, frustrating, or too expensive?"
+                deeptech: {
+                    title: "Frontier Tech",
+                    desc: "Deep tech, advanced research, new materials",
+                    topics: ["Applied AI", "Synthetic Biology", "New Energy Storage", "Quantum Sensors"]
                 },
-                techPush: {
-                    title: "Channel C: Tech Push",
-                    description: "Assets, patents, and unique capabilities searching for a problem.",
-                    prompt: "What unique asset, IP, or capability do you have?"
+                scale: {
+                    title: "Scale & Differentiate",
+                    desc: "Taking existing models to new niches or scales",
+                    topics: ["X for Y", "Vertical SaaS", "Unbundling platforms", "Commoditize services"]
                 },
-                externalShocks: {
-                    title: "Channel D: External Shocks",
-                    description: "Regulatory changes, geopolitical shifts, and 'Why Now?'.",
-                    prompt: "What regulatory, geopolitical, or macro shift just happened?"
+                market: {
+                    title: "Emerging Trends",
+                    desc: "Market pull, changing regulations, macro shifts",
+                    topics: ["Demographic shifts", "New compliance laws", "Remote work infra", "Creator tooling"]
                 }
             }
         },
@@ -218,7 +226,10 @@ export const translations = {
         },
         board: {
             title: "The Board",
-            subtitle: "AI Persona Feedback"
+            subtitle: "AI Persona Feedback",
+            skeptic: "The Skeptic",
+            growth: "The Growth Hacker",
+            cfo: "The CFO"
         }
     }
 };

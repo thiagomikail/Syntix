@@ -74,7 +74,7 @@ export function SocialShareModal({ isOpen, onClose, ideaText, score, title }: So
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="relative w-full max-w-md bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+                        className="relative w-full max-w-md bg-[#0a0a0f] border border-white/10 rounded-md shadow-2xl overflow-hidden flex flex-col"
                     >
                         {/* Header */}
                         <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
@@ -94,7 +94,7 @@ export function SocialShareModal({ isOpen, onClose, ideaText, score, title }: So
                             <div className="flex justify-center">
                                 <div
                                     ref={cardRef}
-                                    className="w-[300px] h-[400px] bg-gradient-to-br from-[#0f172a] to-[#000] border border-white/10 p-6 flex flex-col items-center justify-between rounded-xl relative overflow-hidden shadow-2xl"
+                                    className="w-[300px] h-[400px] bg-gradient-to-br from-[#0f172a] to-[#000] border border-white/10 p-6 flex flex-col items-center justify-between rounded-md relative overflow-hidden shadow-2xl"
                                 >
                                     {/* Background Decor */}
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[50px] rounded-full" />
@@ -108,7 +108,7 @@ export function SocialShareModal({ isOpen, onClose, ideaText, score, title }: So
 
                                     {/* Score */}
                                     <div className="z-10 flex flex-col items-center gap-2">
-                                        <div className="text-[80px] font-black text-primary leading-none tracking-tighter drop-shadow-[0_0_15px_rgba(0,255,157,0.5)]">
+                                        <div className="text-[80px] font-bold text-primary leading-none tracking-tighter drop-shadow-[0_0_15px_rgba(0,255,157,0.5)]">
                                             {score}
                                         </div>
                                         <div className="text-xs uppercase tracking-[0.3em] text-white/60">IRL Score</div>

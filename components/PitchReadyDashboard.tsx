@@ -1,295 +1,272 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useLanguage } from "@/components/LanguageContext";
 import { IRLScore } from "@/components/IRLScore";
 import { TheAuditor } from "@/components/TheAuditor";
 import { TheAIBoard } from "@/components/TheAIBoard";
-import { TheRadar } from "@/components/TheRadar";
 import { MetricCard } from "@/components/MetricCard";
 import { MetricDetailModal } from "@/components/MetricDetailModal";
-import { IdeaCarousel } from "@/components/IdeaCarousel";
-import { Terminal, FileText, Link2, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { analyzeIdea } from "@/app/actions/analyze-idea";
-import { saveIdea, SavedIdea, deleteIdea } from "@/app/actions/user";
+import { togglePublishIdea, saveImpulseThesis, saveIdeaTitle, saveIRLScore } from "@/app/actions/publish";
+import { generateIdeaThumbnail } from "@/app/actions/generate-image";
 import { AnalysisResult, Message } from "@/types/analysis";
 import { InceptionAnalysis } from "@/types/inception";
 import { generateAlphaReport, generateBetaReport } from "@/lib/pdf-generator";
+import { AchievementScale } from "@/components/AchievementScale";
+
+import { cn } from "@/lib/utils";
 
 interface PitchReadyDashboardProps {
+    ideaId: string;
+    isPublic?: boolean;
     user: string | null;
-    history: SavedIdea[];
-    setHistory: (history: SavedIdea[]) => void;
     initialContext?: { text: string, analysis?: InceptionAnalysis } | null;
+    initialTitle?: string | null;
+    thumbnailUrl?: string | null;
 }
 
-import { useGamification } from "@/components/GamificationContext";
-import { SocialShareModal } from "@/components/SocialShareModal";
-
-export function PitchReadyDashboard({ user, history, setHistory, initialContext }: PitchReadyDashboardProps) {
-    const { t, language } = useLanguage();
-    const { addXP, title } = useGamification();
+export function PitchReadyDashboard({ ideaId, isPublic = false, user, initialContext, initialTitle, thumbnailUrl }: PitchReadyDashboardProps) {
 
     const [ideaText, setIdeaText] = useState(initialContext?.text || "");
     const [analyzing, setAnalyzing] = useState(false);
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const [chatMessages, setChatMessages] = useState<Message[]>([]);
     const [selectedMetric, setSelectedMetric] = useState<{ label: string, score: number, description: string, detail: string, color: string } | null>(null);
-    const [shareModalOpen, setShareModalOpen] = useState(false);
 
-    // Ref to hold the context analysis so it doesn't trigger effect loops but is available for the action
+    const [published, setPublished] = useState(isPublic);
+    const [isPublishing, setIsPublishing] = useState(false);
+
+    const [title, setTitle] = useState(initialTitle || "Untitled Venture");
+    const [isSavingTitle, setIsSavingTitle] = useState(false);
+
     const contextRef = useRef<InceptionAnalysis | undefined>(initialContext?.analysis);
 
-    // Update state when initialContext changes
     useEffect(() => {
         if (initialContext) {
             const c = initialContext.analysis;
             let compositeText = initialContext.text;
-
-            // Append formatted context if analysis is present
             if (c) {
                 try {
                     compositeText += `\n\n[INCEPTION ANALYSIS - ${c.classification?.label?.toUpperCase() || "UNKNOWN"}]\n`;
                     compositeText += `Reasoning: ${c.classification?.reasoning || "N/A"}\n`;
-                    compositeText += `\nMARKET RESEARCH:\n- TAM: ${c.marketResearch?.tam || "N/A"}\n- SAM: ${c.marketResearch?.sam || "N/A"}\n- SOM: ${c.marketResearch?.som || "N/A"}\n- Niche: ${c.marketResearch?.niche || "N/A"}\n`;
+                    compositeText += `\nMARKET RESEARCH:\n- TAM: ${c.marketResearch?.tam || "N/A"}\n- SAM: ${c.marketResearch?.sam || "N/A"}\n- SOM: ${c.marketResearch?.som || "N/A"}\n`;
                     compositeText += `\nSTRATEGIC ROADMAP:\n- Month 1: ${c.strategy?.sales1M?.join(', ') || "N/A"}\n- Month 6: ${c.strategy?.sales6M?.join(', ') || "N/A"}\n`;
-                    compositeText += `\nEXECUTION:\n- First Steps: ${c.execution?.first3Steps?.join(', ') || "N/A"}\n- Insight: ${c.execution?.whatElse || "N/A"}`;
-                } catch (e) {
-                    console.error("Error formatting inception context:", e);
-                    compositeText += "\n[Error formatting full analysis details]";
-                }
+                } catch (e) { console.error("Error formatting inception context:", e); }
             }
-
-
             setIdeaText(compositeText);
             contextRef.current = initialContext.analysis;
-
-            // Auto-submit only if not already analyzing to prevent loops/double-submit
-            // We use a timeout to ensure state updates function properly and it feels like a "flow"
-            setTimeout(() => {
-                handleAudit(compositeText);
-            }, 500);
+            setTimeout(() => { handleAudit(compositeText); }, 500);
         }
     }, [initialContext]);
 
-    const handleAudit = async (idea: string) => {
-        setIdeaText(idea);
-        setAnalyzing(true);
-        setResult(null);
-        setChatMessages([]);
-
+    const handlePublishToggle = async () => {
+        setIsPublishing(true);
         try {
-            // Context is now embedded in the text itself, but we can still pass specific structural hints if needed.
-            // For now, we rely on the composite text being sufficient for "The Auditor" to see the full picture.
+            const newState = !published;
+            await togglePublishIdea(ideaId, newState);
+            setPublished(newState);
+        } catch (error) { console.error("Failed to toggle publish", error); }
+        finally { setIsPublishing(false); }
+    };
 
-            const data = await analyzeIdea(idea, language);
+    const handleAudit = async (idea: string) => {
+        setIdeaText(idea); setAnalyzing(true); setResult(null); setChatMessages([]);
+        try {
+            await saveImpulseThesis(ideaId, idea);
+            const data = await analyzeIdea(idea, "en");
             setResult(data);
 
-            if (user) {
-                const updatedUser = await saveIdea(user, idea, data);
-                setHistory(updatedUser.history);
+            // Save the IRL score to the database immediately to display on Arena cards
+            if (data && data.score) {
+                try {
+                    await saveIRLScore(ideaId, JSON.stringify(data));
+                } catch (scoreErr) {
+                    console.error("Failed to persist IRL score:", scoreErr);
+                }
             }
-            addXP(200, "Audited Pitch");
+
+            // Auto-Title feature
+            if (data.title && title === "Untitled Venture") {
+                setTitle(data.title);
+                saveIdeaTitle(ideaId, data.title).catch(err => console.error("Auto-title save failed", err));
+            }
+
+            // Conceptual Poster Auto-Generation (Nano Banana API)
+            if (data.imagePrompt) {
+                // Fire and forget so we don't block the UI rendering
+                generateIdeaThumbnail(ideaId, data.imagePrompt).catch(err => console.error("Image gen failed", err));
+            }
+
+        } catch (error) { console.error("Analysis failed", error); }
+        finally { setAnalyzing(false); }
+    };
+
+    const handleTitleBlur = async () => {
+        if (title === initialTitle) return;
+        setIsSavingTitle(true);
+        try {
+            await saveIdeaTitle(ideaId, title);
         } catch (error) {
-            console.error("Analysis failed", error);
+            console.error("Failed to save title", error);
         } finally {
-            setAnalyzing(false);
+            setIsSavingTitle(false);
         }
     };
-
-    const handleIdeaDelete = async (id: string) => {
-        // Removed confirm for easier testing
-        // if (!confirm(language === 'pt' ? "Tem certeza que deseja excluir esta ideia?" : "Are you sure you want to delete this idea?")) return;
-
-        console.log("Deleting idea:", id);
-
-        // Optimistic UI update
-        const idAsString = id.toString();
-        setHistory(prev => prev.filter(item => item.id !== idAsString));
-
-        if (user) {
-            try {
-                await deleteIdea(user, idAsString);
-                console.log("Deleted idea from server:", idAsString);
-            } catch (error) {
-                console.error("Failed to delete idea", error);
-                // We could rollback here if critical, but for now log is enough
-            }
-        }
-    };
-
-    const carouselItems = history.map(h => ({
-        id: parseInt(h.id),
-        title: h.text.substring(0, 30) + "...",
-        category: "Saved",
-        score: h.analysis.score,
-        image: "bg-slate-900"
-    }));
 
     return (
-        <div className="flex flex-col h-full font-sans selection:bg-primary/20 bg-background text-foreground animate-in fade-in duration-500">
+        <div className="flex flex-col h-full">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-6 py-3 border-b border-primary/10">
+                <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary/50 text-xl">edit_note</span>
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={handleTitleBlur}
+                        placeholder="Name your venture..."
+                        className="bg-transparent border-none text-xl font-bold tracking-tight text-white focus:outline-none focus:ring-0 w-64 md:w-96 placeholder:text-slate-600 transition-opacity"
+                    />
+                    {isSavingTitle && <span className="text-xs text-primary animate-pulse">Saving...</span>}
+                </div>
+                <button
+                    onClick={handlePublishToggle}
+                    disabled={isPublishing}
+                    className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50",
+                        published
+                            ? "bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30"
+                            : "bg-slate-800 text-slate-300 border border-slate-700 hover:border-primary"
+                    )}
+                >
+                    <span className="material-symbols-outlined text-sm">{published ? "public" : "lock"}</span>
+                    {isPublishing ? "Saving..." : published ? "Unpublish from Arena" : "Publish to Arena"}
+                </button>
+            </div>
 
-            {/* Main Content Area */}
-            <main className="flex-1 overflow-hidden p-6 gap-6 grid grid-cols-12 h-[calc(100vh-220px)]">
-
-                {/* LEFT PANEL: Pitch Input */}
-                <div className="col-span-12 lg:col-span-3 flex flex-col gap-4 h-full overflow-y-auto">
-                    <div className="bg-secondary/10 border border-border rounded-xl p-6 flex flex-col gap-4 h-full backdrop-blur-md shadow-lg">
+            {/* Main Content */}
+            <main className="flex-1 overflow-hidden p-4 gap-4 grid grid-cols-12 h-[calc(100vh-180px)]">
+                {/* LEFT: Thesis Editor */}
+                <div className="col-span-12 lg:col-span-3 flex flex-col gap-3 h-full overflow-y-auto">
+                    <div className="rounded-2xl border border-primary/10 bg-[#1A1A1A] p-5 flex flex-col gap-3 h-full text-white">
+                        <h2 className="text-xs font-bold uppercase tracking-widest text-primary">Impulse Thesis</h2>
                         <TheAuditor
                             onSubmit={handleAudit}
                             isAnalyzing={analyzing}
-                            title={language === 'pt' ? "Apresente sua ideia" : "Pitch me your idea"}
+                            title="Edit Thesis"
                             initialValue={ideaText}
                         />
                     </div>
                 </div>
 
-                {/* MIDDLE PANEL: Analysis */}
+                {/* MIDDLE: Analysis */}
                 <div className="col-span-12 lg:col-span-6 flex flex-col gap-4 h-full overflow-y-auto scrollbar-hide">
                     <AnimatePresence mode="wait">
                         {result ? (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="flex flex-col gap-6 pb-20"
-                            >
-                                {/* Summary Card */}
-                                <div className="w-full bg-secondary/5 border border-border rounded-xl p-6 backdrop-blur-sm">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
-                                            Analysis Complete
-                                        </h2>
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col gap-4 pb-20">
+                                {/* Summary */}
+                                <div className="rounded-2xl border border-primary/10 bg-[#1A1A1A] p-6 text-white relative overflow-hidden">
+                                    {/* Thumbnail Backdrop */}
+                                    {thumbnailUrl && (
+                                        <div
+                                            className="absolute top-0 right-0 w-1/3 h-full opacity-20 pointer-events-none mask-image-gradient-to-l"
+                                            style={{
+                                                backgroundImage: `url(${thumbnailUrl})`,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+                                                WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)'
+                                            }}
+                                        />
+                                    )}
+                                    <div className="relative z-10 flex justify-between items-start mb-6">
+                                        <h2 className="text-2xl font-bold tracking-tight">Analysis Complete</h2>
                                         <div className="flex gap-2">
                                             <button
-                                                onClick={() => setShareModalOpen(true)}
-                                                className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 hover:bg-white/10 text-white rounded-md text-xs font-mono uppercase tracking-wider transition-colors border border-white/10"
-                                            >
-                                                <Share2 className="w-3 h-3" />
-                                                Share
-                                            </button>
-                                            <button
                                                 onClick={() => generateAlphaReport(ideaText, result)}
-                                                className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-md text-xs font-mono uppercase tracking-wider transition-colors"
+                                                className="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold shadow-lg shadow-primary/25 hover:shadow-glow-primary transition-all"
                                             >
-                                                <FileText className="w-3 h-3" />
-                                                Alpha Report
+                                                <span className="material-symbols-outlined text-sm">description</span>
+                                                Report
                                             </button>
                                         </div>
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-8 items-center">
+                                    <div className="grid grid-cols-2 gap-6 items-center">
                                         <div className="flex justify-center">
-                                            <IRLScore score={result.score} label={t.irl.title} />
+                                            <IRLScore score={result.score} label="IRL Score" />
                                         </div>
-                                        <div className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-primary/50 pl-4">
-                                            "{result.feedback}"
+                                        <div className="text-sm text-slate-300 leading-relaxed italic border-l-2 border-primary/30 pl-4">
+                                            &ldquo;{result.feedback}&rdquo;
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Detailed Metrics */}
-                                <div className="grid grid-cols-3 gap-4">
-                                    <MetricCard
-                                        label="Logical Coherence"
-                                        score={result.detailedScores?.logicalCoherence || 0}
-                                        color="#3b82f6"
-                                        description="Clarity of the problem-solution fit and internal consistency."
-                                        onClick={() => setSelectedMetric({
-                                            label: "Logical Coherence",
-                                            score: result.detailedScores?.logicalCoherence || 0,
-                                            description: "Clarity of the problem-solution fit and internal consistency.",
-                                            detail: result.metricDetails?.logicalCoherence || "Detailed analysis generally unavailable for legacy data.",
-                                            color: "#3b82f6"
-                                        })}
-                                    />
-                                    <MetricCard
-                                        label="Market Depth"
-                                        score={result.detailedScores?.marketDepth || 0}
-                                        color="#eab308"
-                                        description="Size of the TAM/SAM and accessibility of the target audience."
-                                        onClick={() => setSelectedMetric({
-                                            label: "Market Depth",
-                                            score: result.detailedScores?.marketDepth || 0,
-                                            description: "Size of the TAM/SAM and accessibility of the target audience.",
-                                            detail: result.metricDetails?.marketDepth || "Detailed analysis generally unavailable for legacy data.",
-                                            color: "#eab308"
-                                        })}
-                                    />
-                                    <MetricCard
-                                        label="Unit Economics"
-                                        score={result.detailedScores?.unitEconomics || 0}
-                                        color="#00ff41"
-                                        description="Potential for profitability on a per-unit or per-user basis."
-                                        onClick={() => setSelectedMetric({
-                                            label: "Unit Economics",
-                                            score: result.detailedScores?.unitEconomics || 0,
-                                            description: "Potential for profitability on a per-unit or per-user basis.",
-                                            detail: result.metricDetails?.unitEconomics || "Detailed analysis generally unavailable for legacy data.",
-                                            color: "#00ff41"
-                                        })}
-                                    />
+                                {/* Metrics */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <MetricCard label="Logic" score={result.detailedScores?.logicalCoherence || 0} color="#7f0df2" description="Problem-solution coherence" onClick={() => setSelectedMetric({ label: "Logic", score: result.detailedScores?.logicalCoherence || 0, description: "Clarity of the problem-solution fit.", detail: result.metricDetails?.logicalCoherence || "", color: "#7f0df2" })} />
+                                    <MetricCard label="Market" score={result.detailedScores?.marketDepth || 0} color="#00f5ff" description="TAM/SAM accessibility" onClick={() => setSelectedMetric({ label: "Market", score: result.detailedScores?.marketDepth || 0, description: "Market size and accessibility.", detail: result.metricDetails?.marketDepth || "", color: "#00f5ff" })} />
+                                    <MetricCard label="Economics" score={result.detailedScores?.unitEconomics || 0} color="#eab308" description="Unit economics potential" onClick={() => setSelectedMetric({ label: "Economics", score: result.detailedScores?.unitEconomics || 0, description: "Potential for per-unit profitability.", detail: result.metricDetails?.unitEconomics || "", color: "#eab308" })} />
                                 </div>
 
-                                {/* Radar Chart */}
-                                <TheRadar data={result.radarData} />
-
+                                {/* Achievement Scale */}
+                                <AchievementScale
+                                    currentStage="idea"
+                                    archetype={contextRef.current?.classification?.path}
+                                />
                             </motion.div>
                         ) : (
-                            <div className="h-full flex flex-col items-center justify-center border border-border bg-secondary/5 rounded-xl border-dashed opacity-70 space-y-4 p-8 text-center">
-                                <div className="p-4 bg-secondary/20 rounded-full mb-2">
-                                    <Terminal className="w-8 h-8 text-primary/50" />
+                            <div className="h-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-primary/20 p-8 text-center">
+                                <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+                                    <span className="material-symbols-outlined text-3xl text-primary">analytics</span>
                                 </div>
-                                <h3 className="text-lg font-bold text-foreground">
-                                    {language === 'pt' ? "Estação de Análise Pronta" : "Analysis Station Ready"}
-                                </h3>
-                                <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-                                    {language === 'pt'
-                                        ? "Preencha o formulário à esquerda ou selecione uma ideia salva abaixo para iniciar a auditoria."
-                                        : "Fill out the form on the left or select a saved idea below to start the audit."}
-                                </p>
+                                <h3 className="text-lg font-bold mb-1 text-white">Analysis Station Ready</h3>
+                                <p className="text-sm text-slate-400 max-w-xs">Review and format your Impulse Thesis on the left to start the audit.</p>
                             </div>
                         )}
                     </AnimatePresence>
                 </div>
 
-                {/* RIGHT PANEL: Chat */}
+                {/* RIGHT: Chat */}
                 <div className="col-span-12 lg:col-span-3 flex flex-col h-full overflow-hidden">
-                    <div className="bg-secondary/10 border border-border rounded-xl h-full flex flex-col backdrop-blur-md shadow-lg overflow-hidden relative">
-
+                    <div className="rounded-2xl border border-primary/10 bg-[#1A1A1A] h-full flex flex-col overflow-hidden text-white">
                         <TheAIBoard
-                            key={result ? `analysis-${result.score}-${ideaText.substring(0, 5)}` : 'empty'}
+                            key={result ? `analysis-${result.score}` : 'empty'}
+                            initialMessages={(() => {
+                                const archetype = contextRef.current?.classification?.path || "default";
+                                const msgs: Message[] = [];
+                                const now = new Date();
+
+                                if (archetype === "cash_cow") {
+                                    msgs.push({ id: "init1", role: "ai", persona: "cfo", content: "Como CFO, vejo que estamos lidando com um Cash Cow. Nosso foco total deve ser em otimizar a margem operacional desde o dia 1.", timestamp: now });
+                                    msgs.push({ id: "init2", role: "ai", persona: "builder", content: "Exato. Tecnicamente o MVP tem que ser enxuto e usar ferramentas No-Code para não queimar caixa construindo do zero.", timestamp: now });
+                                } else if (archetype === "cash_farm") {
+                                    msgs.push({ id: "init1", role: "ai", persona: "cfo", content: "Sendo um Cash Farm, o modelo depende de especialistas. Como vamos remunerá-los sem quebrar nossa própria margem?", timestamp: now });
+                                    msgs.push({ id: "init2", role: "ai", persona: "growth", content: "O grande desafio aqui será aquisição duplo-lado (experts e clientes). Precisamos de um GTM focado em comunidade.", timestamp: now });
+                                } else if (archetype === "new_meat") {
+                                    msgs.push({ id: "init1", role: "ai", persona: "skeptic", content: "Isso é um 'New Meat'. Altíssimo risco e necessidade de capital intensivo. Temos certeza que os fundadores têm capacidade de levantar funding?", timestamp: now });
+                                    msgs.push({ id: "init2", role: "ai", persona: "builder", content: "Para provar o valor, a arquitetura técnica inicial (o MVP) precisa focar na inovação core, isolando o que é comoditizado.", timestamp: now });
+                                } else if (archetype === "ozempics") {
+                                    msgs.push({ id: "init1", role: "ai", persona: "skeptic", content: "Isso muda um paradigma comportamental (Ozempics). As pessoas dizem que querem mudar, mas na prática a fricção mata o negócio.", timestamp: now });
+                                    msgs.push({ id: "init2", role: "ai", persona: "growth", content: "Verdade. O custo de aquisição (CAC) para educar esse mercado vai ser altíssimo nas primeiras semanas. O foco tem que ser em viralidade.", timestamp: now });
+                                } else if (archetype === "dead_end") {
+                                    msgs.push({ id: "init1", role: "ai", persona: "skeptic", content: "Este conceito soa como um 'Dead End'. É uma solução procurando um problema, ou o mercado não é grande o suficiente.", timestamp: now });
+                                    msgs.push({ id: "init2", role: "ai", persona: "cfo", content: "Concordo. Nossa recomendação é iterar severamente na tese original antes de alocar capital ou escrever qualquer linha de código.", timestamp: now });
+                                } else {
+                                    msgs.push({ id: "init1", role: "ai", persona: "skeptic", content: "Antes de mais nada, precisamos entender se há um problema real sendo resolvido aqui.", timestamp: now });
+                                    msgs.push({ id: "init2", role: "ai", persona: "cfo", content: "De acordo. E se houver, precisamos ver se alguém está disposto a pagar por isso.", timestamp: now });
+                                }
+                                return msgs;
+                            })()}
                             onMessagesChange={setChatMessages}
                             showBetaReport={!!result && chatMessages.length > 0}
                             onBetaReport={() => result && generateBetaReport(ideaText, result, chatMessages)}
                         />
                     </div>
                 </div>
-
             </main>
 
-            {/* BOTTOM PANEL: Business Inception (Carousel) - Fixed Height */}
-            <div className="h-[200px] border-t border-border bg-background/95 backdrop-blur-md p-4">
-                <div className="max-w-7xl mx-auto h-full flex flex-col justify-center">
-                    <h3 className="text-sm font-mono uppercase tracking-widest text-muted mb-2">
-                        BUSINESS
-                    </h3>
-                    <IdeaCarousel
-                        items={carouselItems.length > 0 ? carouselItems : undefined}
-                        onSelect={(id) => {
-                            const selected = history.find(h => parseInt(h.id) === parseInt(id));
-                            if (selected) {
-                                setIdeaText(selected.text);
-                                setResult(selected.analysis);
-                                setChatMessages([]);
-                            }
-                        }}
-                        onDelete={handleIdeaDelete}
-                    />
-                </div>
-            </div>
-
-            {/* Modal Layer */}
+            {/* Metric Modal */}
             {selectedMetric && (
                 <MetricDetailModal
                     isOpen={!!selectedMetric}
@@ -299,17 +276,6 @@ export function PitchReadyDashboard({ user, history, setHistory, initialContext 
                     description={selectedMetric.description}
                     detailedExplanation={selectedMetric.detail}
                     color={selectedMetric.color}
-                />
-            )}
-
-            {/* Social Share Modal */}
-            {result && (
-                <SocialShareModal
-                    isOpen={shareModalOpen}
-                    onClose={() => setShareModalOpen(false)}
-                    ideaText={ideaText}
-                    score={result.score}
-                    title={title}
                 />
             )}
         </div>

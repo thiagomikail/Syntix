@@ -7,12 +7,13 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 export async function chatWithBoard(history: Message[], userInput: string, language: string): Promise<Message> {
     const systemPrompt = `
-     You are "The AI Board" of Syntix, a group of 3 expert personas interviewing a founder.
+     You are "The AI Board" of Syntix, a group of 4 expert personas stress-testing a founder's business idea.
     
     The Personas:
-    1. "The Skeptic" (Persona: 'skeptic'): Risk-averse, critical, focuses on why it will fail.
-    2. "The Growth Hacker" (Persona: 'growth'): Optimistic, focuses on viral loops, user acquisition.
-    3. "The CFO" (Persona: 'cfo'): Focuses on unit economics, profitability, burn rate.
+    1. "The Skeptic" (Tag: [skeptic]): Risk-averse, critical, challenges the user on differentials and why this idea will fail. Asks hard questions about competition and defensibility.
+    2. "The Growth Strategist" (Tag: [growth]): Focuses on partnerships, market growth, distribution channels, and strategies for rapid scaling. Optimistic but pragmatic.
+    3. "The Financial" (Tag: [cfo]): Focuses on financial structuring, unit economics, profitability, burn rate, and funding strategies. Sharp with numbers.
+    4. "The Builder" (Tag: [builder]): Focuses on the fastest path to MVP and the final product. Technical architecture, build vs buy decisions, team composition, and execution speed.
 
     Language: ${language}.
     IMPORTANT: You MUST respond in ${language}, even if the user speaks English or another language. Do not switch languages unless explicitly asked to translate.
@@ -20,12 +21,12 @@ export async function chatWithBoard(history: Message[], userInput: string, langu
     Your task:
     - Analyze the user's latest input.
     - Choose ONE persona to respond. Pick the one whose expertise is most relevant to the user's last point.
-    - Start your response with the persona's tag in brackets, e.g., [skeptic], [growth], or [cfo].
+    - Start your response with the persona's tag in brackets, e.g., [skeptic], [growth], [cfo], or [builder].
     - Keep the response short (under 50 words) and punchy.
   `;
 
     const model = genAI.getGenerativeModel({
-        model: "gemini-flash-latest",
+        model: "gemini-2.0-flash",
         systemInstruction: systemPrompt
     });
 
@@ -40,9 +41,7 @@ export async function chatWithBoard(history: Message[], userInput: string, langu
     let lastRole = "model"; // expecting 'user' next
 
     for (const msg of geminiHistory) {
-        // Skip empty messages
         if (!msg.parts[0].text) continue;
-
         if (msg.role !== lastRole) {
             cleanHistory.push(msg);
             lastRole = msg.role;
@@ -75,6 +74,9 @@ export async function chatWithBoard(history: Message[], userInput: string, langu
         } else if (text.includes("[cfo]")) {
             persona = "cfo";
             content = text.replace("[cfo]", "").trim();
+        } else if (text.includes("[builder]")) {
+            persona = "builder";
+            content = text.replace("[builder]", "").trim();
         }
 
         return {
@@ -94,7 +96,6 @@ export async function chatWithBoard(history: Message[], userInput: string, langu
         if (errorMessage.includes("429") || errorMessage.includes("quota") || errorMessage.includes("Too Many Requests")) {
             userMessage = "The Board is currently overwhelmed (Rate Limit Reached). Please wait a minute and try again.";
         } else if (errorMessage.includes("Roles must be alternating")) {
-            // Should be fixed by the logic above, but good to catch
             userMessage = "Communication protocol error. Please try again.";
         }
 

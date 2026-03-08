@@ -1,0 +1,48 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+export async function submitVote(ideaId: string, score: number) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+        throw new Error("Must be logged in to vote");
+    }
+    if (score < 1 || score > 5) {
+        throw new Error("Score must be between 1 and 5");
+    }
+
+    // Upsert: create or update vote
+    await prisma.vote.upsert({
+        where: { userId_ideaId: { userId: session.user.id, ideaId } },
+        update: { score },
+        create: { userId: session.user.id, ideaId, score },
+    });
+
+    // Recalculate average
+    const aggregate = await prisma.vote.aggregate({
+        where: { ideaId },
+        _avg: { score: true },
+    });
+
+    const averageRating = aggregate._avg.score || 0;
+
+    await prisma.idea.update({
+        where: { id: ideaId },
+        data: { averageRating },
+    });
+
+    return { averageRating };
+}
+
+export async function getUserVote(ideaId: string) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return null;
+
+    const vote = await prisma.vote.findUnique({
+        where: { userId_ideaId: { userId: session.user.id, ideaId } },
+    });
+
+    return vote?.score || null;
+}

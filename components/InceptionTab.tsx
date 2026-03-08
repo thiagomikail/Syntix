@@ -1,339 +1,368 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useLanguage } from "@/components/LanguageContext";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Target, TrendingUp, AlertTriangle, Send, Loader2 } from "lucide-react";
-import { classifyIdea } from "@/app/actions/classify-idea";
-import { InceptionAnalysis, InceptionPath } from "@/types/inception";
+import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
-
-import { useGamification } from "@/components/GamificationContext";
+import { classifyIdea } from "@/app/actions/classify-idea";
+import { motion, AnimatePresence } from "framer-motion";
+import { InceptionAnalysis } from "@/types/inception";
+import { VoiceInput } from "@/components/VoiceInput";
 
 interface InceptionTabProps {
-    onPitch?: (idea: string, analysis: InceptionAnalysis) => void;
+    ideaId: string;
+    onPitch?: (text: string, analysis: InceptionAnalysis) => void;
     initialValue?: string;
     isActive?: boolean;
 }
 
-export function InceptionTab({ onPitch, initialValue, isActive }: InceptionTabProps) {
-    const { t, language } = useLanguage();
-    const { addXP } = useGamification();
-    const [idea, setIdea] = useState(initialValue || "");
+const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
+
+const archetypeConfig: Record<string, { icon: string; color: string; description: string }> = {
+    "cash_cow": { icon: "savings", color: "#22c55e", description: "Low scale, high margin" },
+    "cash_farm": { icon: "agriculture", color: "#3b82f6", description: "Scale through specialists" },
+    "new_meat": { icon: "rocket_launch", color: "#a855f7", description: "VC-backed, high risk/return" },
+    "ozempics": { icon: "biotech", color: "#f59e0b", description: "Deep tech, behavior change" },
+    "dead_end": { icon: "dangerous", color: "#ef4444", description: "No return, even with risk" },
+};
+
+const archetypeLabels: Record<string, string> = {
+    "cash_cow": "Cash Cow",
+    "cash_farm": "Cash Farm",
+    "new_meat": "New Meat",
+    "ozempics": "Ozempics",
+    "dead_end": "Dead End",
+};
+
+export function InceptionTab({ ideaId, onPitch, initialValue = "", isActive }: InceptionTabProps) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [idea, setIdea] = useState(initialValue);
     const [analyzing, setAnalyzing] = useState(false);
     const [result, setResult] = useState<InceptionAnalysis | null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => { if (initialValue) setIdea(initialValue); }, [initialValue]);
+    useEffect(() => { if (isActive && inputRef.current && !result) inputRef.current.focus(); }, [isActive, result]);
 
     useEffect(() => {
-        if (isActive && inputRef.current) {
-            // Small timeout to allow transition/visibility to settle
-            setTimeout(() => {
-                inputRef.current?.focus();
-            }, 100);
+        if (initialValue && !result && isActive) {
+            handleClassify();
         }
-    }, [isActive]);
+    }, [initialValue, isActive]);
 
-    const handleClassify = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!idea.trim()) return;
-
+    const handleClassify = async () => {
+        if (!idea.trim() || analyzing) return;
         setAnalyzing(true);
         setResult(null);
         try {
-            const data = await classifyIdea(idea, language);
+            const data = await classifyIdea(ideaId, idea);
             setResult(data);
-            addXP(100, "Analyzed Idea");
         } catch (error) {
-            console.error("Classification error", error);
+            console.error("Classification failed:", error);
         } finally {
             setAnalyzing(false);
         }
     };
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
-    };
-
-    const paths: {
-        id: InceptionPath;
-        label: string;
-        icon: string;
-        description: string;
-        authors: string;
-        examples: string;
-    }[] = [
-            {
-                id: 'micro',
-                label: t.inception.paths.micro.label,
-                icon: "🌱",
-                description: t.inception.paths.micro.description,
-                authors: "Pieter Levels, Justin Jackson",
-                examples: "NomadList, Bannerbear"
-            },
-            {
-                id: 'specialist',
-                label: t.inception.paths.specialist.label,
-                icon: "🔬",
-                description: t.inception.paths.specialist.description,
-                authors: "Eric Ries, Bill Aulet",
-                examples: "Salesforce (early), Hubspot"
-            },
-            {
-                id: 'venture',
-                label: t.inception.paths.venture.label,
-                icon: "🚀",
-                description: t.inception.paths.venture.description,
-                authors: "Paul Graham, Sam Altman",
-                examples: "Airbnb, Stripe, DoorDash"
-            },
-            {
-                id: 'paradigm',
-                label: t.inception.paths.paradigm.label,
-                icon: "🌌",
-                description: t.inception.paths.paradigm.description,
-                authors: "Peter Thiel, Reid Hoffman",
-                examples: "SpaceX, Tesla, Google"
-            },
-            {
-                id: 'dead_end',
-                label: t.inception.paths.dead_end.label,
-                icon: "💀",
-                description: t.inception.paths.dead_end.description,
-                authors: "Common Sense",
-                examples: "Another To-Do List, Uber for Pet Rock"
-            },
-        ];
-
     return (
-        <div className="flex flex-col h-full overflow-y-auto p-6 gap-6 max-w-7xl mx-auto w-full animate-in fade-in duration-700 scrollbar-hide">
-
+        <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-8 text-white">
             {/* Input Section */}
-            <div className="flex flex-col items-center justify-center min-h-[40vh] gap-8 py-12">
-                <div className="text-center space-y-4">
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
-                        {t.inception.title}
-                    </h1>
-                    <p className="text-muted-foreground max-w-lg mx-auto text-lg font-light">
-                        {t.inception.subtitle}
-                    </p>
-                </div>
+            {!result && (
+                <div className="flex flex-col items-center justify-center min-h-[40vh] gap-8 py-12">
+                    <div className="text-center space-y-3">
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                            <span className="text-primary">Análise</span> e Refino
+                        </h1>
+                        <p className="text-slate-400 max-w-md mx-auto text-sm">
+                            Classify your idea into a business archetype and get deep strategic intelligence.
+                        </p>
+                    </div>
 
-                <div className="w-full max-w-2xl relative group">
-                    <div className="absolute inset-0 bg-primary/20 blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-1000 rounded-full" />
-                    <div className="relative flex items-center bg-secondary/50 border border-white/10 rounded-2xl p-2 shadow-2xl backdrop-blur-xl transition-all focus-within:border-white/20 focus-within:bg-secondary">
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={idea}
-                            onChange={(e) => setIdea(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && handleClassify(e)}
-                            placeholder={t.inception.placeholder}
-                            disabled={analyzing}
-                            autoFocus
-                            className="flex-1 bg-transparent px-6 py-4 outline-none text-lg text-foreground placeholder:text-muted-foreground/50 w-full"
-                        />
-                        <button
-                            onClick={handleClassify}
-                            disabled={!idea.trim() || analyzing}
-                            className="bg-primary hover:bg-white/90 text-black p-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {analyzing ? (
-                                <Loader2 className="w-6 h-6 animate-spin" />
-                            ) : (
-                                <ArrowRight className="w-6 h-6" />
-                            )}
-                        </button>
+                    <div className="w-full max-w-xl relative">
+                        <div className="relative flex items-center bg-[#1A1A1A] rounded-xl p-2 border border-primary/10">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={idea}
+                                onChange={(e) => setIdea(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleClassify()}
+                                placeholder="Paste or type your idea..."
+                                className="flex-1 bg-transparent px-4 py-3 text-sm focus:outline-none placeholder:text-slate-500 text-white"
+                            />
+                            <VoiceInput
+                                onTranscript={(t) => setIdea(prev => prev ? prev + " " + t : t)}
+                                disabled={analyzing}
+                            />
+                            <button
+                                onClick={handleClassify}
+                                disabled={!idea.trim() || analyzing}
+                                className="bg-primary text-white p-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25 hover:shadow-glow-primary ml-1"
+                            >
+                                {analyzing ? (
+                                    <span className="material-symbols-outlined text-xl animate-spin">progress_activity</span>
+                                ) : (
+                                    <span className="material-symbols-outlined text-xl">search</span>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
-            {/* Results Section */}
-            <AnimatePresence mode="wait">
+            {/* Results */}
+            <AnimatePresence>
                 {result && (
                     <motion.div
-                        initial={{ opacity: 0, y: 40 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="grid grid-cols-12 gap-6 pb-20"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="show"
+                        className="space-y-6"
                     >
-                        {/* Spectrum Visualization (Full Width) */}
-                        <motion.div variants={itemVariants} className="col-span-12">
-                            <div className="bg-card border border-border rounded-2xl p-8 backdrop-blur-md">
-                                <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-8 text-center opacity-50">
-                                    {t.inception.spectrum}
-                                </div>
-                                <div className="flex flex-col md:flex-row justify-between gap-4 overflow-x-visible pb-4 mb-4 relative z-10">
-                                    {paths.map(path => {
-                                        const isMatch = result.classification.path === path.id;
+                        {/* 5 Archetype Spectrum */}
+                        <motion.div variants={itemVariants}>
+                            <div className="rounded-2xl border border-primary/10 bg-[#1A1A1A] p-6">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-primary mb-6 text-center">
+                                    Business Archetype Classification
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                    {Object.entries(archetypeConfig).map(([key, config]) => {
+                                        const isMatch = result.classification?.path === key;
                                         return (
                                             <div
-                                                key={path.id}
+                                                key={key}
                                                 className={cn(
-                                                    "relative group flex-1 p-6 rounded-xl border transition-all duration-300 flex flex-col items-center gap-4 text-center cursor-default",
+                                                    "p-4 rounded-xl flex flex-col items-center gap-2 text-center transition-all",
                                                     isMatch
-                                                        ? "bg-primary/10 border-primary shadow-sm z-20"
-                                                        : "bg-secondary/40 border-transparent hover:bg-secondary hover:border-white/5 opacity-60 hover:opacity-100"
+                                                        ? "ring-2 bg-opacity-10"
+                                                        : "bg-[#222222] opacity-40"
                                                 )}
+                                                style={isMatch ? {
+                                                    backgroundColor: config.color + "15",
+                                                    border: `2px solid ${config.color}`,
+                                                    boxShadow: `0 0 20px ${config.color}20`
+                                                } : undefined}
                                             >
-                                                <div className="text-3xl filter grayscale group-hover:grayscale-0 transition-all">{path.icon}</div>
-                                                <div className={cn("text-sm font-medium", isMatch ? "text-primary" : "text-muted-foreground")}>
-                                                    {path.label.split(": ")[1]}
-                                                </div>
-
-                                                {/* Tooltip (Balloon Style) */}
-                                                <div className="absolute bottom-[calc(100%+1rem)] left-1/2 -translate-x-1/2 w-64 p-4 bg-popover text-popover-foreground text-xs rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 border border-border">
-                                                    <div className="font-semibold mb-2 text-base border-b border-border/50 pb-2">{path.label.split(": ")[1]}</div>
-                                                    <p className="text-muted-foreground mb-3 leading-relaxed">{path.description}</p>
-                                                    <div className="space-y-1 bg-secondary/30 p-2 rounded-lg">
-                                                        <div className="flex gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">Authors</div>
-                                                        <div className="font-medium text-foreground mb-2">{path.authors}</div>
-                                                        <div className="flex gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">Examples</div>
-                                                        <div className="font-medium text-foreground">{path.examples}</div>
-                                                    </div>
-                                                    {/* Arrow */}
-                                                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-4 h-4 bg-popover border-r border-b border-border rotate-45 transform"></div>
-                                                </div>
+                                                <span
+                                                    className="material-symbols-outlined text-2xl"
+                                                    style={{ color: isMatch ? config.color : "#64748b" }}
+                                                >
+                                                    {config.icon}
+                                                </span>
+                                                <span
+                                                    className="text-xs font-bold"
+                                                    style={{ color: isMatch ? config.color : "#64748b" }}
+                                                >
+                                                    {archetypeLabels[key]}
+                                                </span>
+                                                <span className="text-[10px] text-slate-500">{config.description}</span>
+                                                {isMatch && (
+                                                    <span className="text-[10px] text-slate-300 mt-1">{result.classification?.reasoning}</span>
+                                                )}
                                             </div>
-                                        )
+                                        );
                                     })}
                                 </div>
-
-                                {/* Reasoning Display (New) */}
-                                <div className="text-center px-4 md:px-12 mt-8">
-                                    <blockquote className="text-xl font-medium text-foreground/80 border-l-2 border-primary/50 pl-6 py-2 italic text-left max-w-4xl mx-auto">
-                                        "{result.classification.reasoning}"
-                                    </blockquote>
-                                </div>
                             </div>
                         </motion.div>
 
-                        {/* Card 2: Market Research (Left Col) */}
-                        <motion.div variants={itemVariants} className="col-span-12 md:col-span-4 flex flex-col gap-6">
-                            <div className="bg-secondary/5 border border-border rounded-xl p-6 h-full backdrop-blur-sm hover:bg-secondary/10 transition-colors">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <Target className="w-4 h-4 text-primary" />
-                                    <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">{t.inception.sections.marketResearch}</h3>
-                                </div>
-                                <div className="space-y-6">
-                                    <div className="grid gap-4">
-                                        <div>
-                                            <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-1">{t.inception.sections.tam}</div>
-                                            <div className="text-sm font-medium text-foreground">{result?.marketResearch?.tam || "N/A"}</div>
-                                        </div>
-                                        <div>
-                                            <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-1">{t.inception.sections.sam}</div>
-                                            <div className="text-sm font-medium text-foreground">{result?.marketResearch?.sam || "N/A"}</div>
-                                        </div>
-                                        <div>
-                                            <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-1">{t.inception.sections.som}</div>
-                                            <div className="text-sm font-medium text-foreground">{result?.marketResearch?.som || "N/A"}</div>
-                                        </div>
+                        {/* Strategic Map: 3 Sections */}
+                        <div className="grid grid-cols-12 gap-4">
+                            {/* Market Research */}
+                            <motion.div variants={itemVariants} className="col-span-12 md:col-span-4">
+                                <div className="rounded-2xl border border-primary/10 bg-[#1A1A1A] p-6 h-full">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <span className="material-symbols-outlined text-primary">target</span>
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Pesquisa de Mercado</h3>
                                     </div>
-                                    <div className="pt-6 border-t border-border/50">
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">{t.inception.sections.niche}</div>
-                                        <p className="text-sm leading-relaxed text-foreground/80">{result?.marketResearch?.niche || "No niche strategy available."}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        {/* Card 3: Execution Strategy (Right Col) */}
-                        <motion.div variants={itemVariants} className="col-span-12 md:col-span-8 flex flex-col gap-6">
-                            <div className="bg-secondary/5 border border-border rounded-xl p-6 h-full backdrop-blur-sm hover:bg-secondary/10 transition-colors relative">
-                                <div className="flex items-center justify-between mb-8">
-                                    <div className="flex items-center gap-2">
-                                        <TrendingUp className="w-4 h-4 text-primary" />
-                                        <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">{t.inception.sections.strategicRoadmap}</h3>
-                                    </div>
-
-                                    {/* Create Pitch Button */}
-                                    <button
-                                        onClick={() => onPitch && onPitch(idea, result)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-primary text-background hover:bg-primary/90 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-lg shadow-primary/20"
-                                    >
-                                        <Sparkles className="w-3 h-3" />
-                                        {t.common.pitchThis}
-                                    </button>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                                    {/* Month 1 */}
-                                    <div>
-                                        <div className="flex items-center gap-2 text-primary mb-4">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                            <h4 className="text-xs font-bold uppercase tracking-widest">
-                                                {t.common.month1}: {t.inception.sections.validation}
-                                            </h4>
+                                    <div className="space-y-4">
+                                        {[
+                                            { label: "TAM", value: result.marketResearch?.tam },
+                                            { label: "SAM", value: result.marketResearch?.sam },
+                                            { label: "SOM", value: result.marketResearch?.som },
+                                        ].map((item) => (
+                                            <div key={item.label}>
+                                                <span className="text-xs font-bold text-slate-400 uppercase">{item.label}</span>
+                                                <p className="text-sm mt-0.5">{item.value || "N/A"}</p>
+                                            </div>
+                                        ))}
+                                        <div className="pt-3 border-t border-primary/10">
+                                            <span className="text-xs font-bold text-slate-400 uppercase">Persona</span>
+                                            <p className="text-sm mt-0.5">{result.marketResearch?.persona || "N/A"}</p>
                                         </div>
-                                        <ul className="space-y-3">
-                                            {result?.strategy?.sales1M?.map((step, i) => (
-                                                <li key={i} className="text-sm text-foreground/80 leading-relaxed pl-4 border-l border-border/50">
-                                                    {step}
-                                                </li>
-                                            )) || <li className="text-sm text-muted-foreground">No steps available.</li>}
-                                        </ul>
-                                    </div>
-
-                                    {/* Month 6 */}
-                                    <div>
-                                        <div className="flex items-center gap-2 text-primary mb-4">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-                                            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                                                {t.common.month6}: {t.inception.sections.systems}
-                                            </h4>
-                                        </div>
-                                        <ul className="space-y-3">
-                                            {result?.strategy?.sales6M?.map((step, i) => (
-                                                <li key={i} className="text-sm text-foreground/80 leading-relaxed pl-4 border-l border-border/50">
-                                                    {step}
-                                                </li>
-                                            )) || <li className="text-sm text-muted-foreground">No steps available.</li>}
-                                        </ul>
+                                        {result.marketResearch?.competitors && result.marketResearch.competitors.length > 0 && (
+                                            <div className="pt-3 border-t border-primary/10">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">Competitors</span>
+                                                <ul className="mt-1 space-y-1">
+                                                    {result.marketResearch.competitors.map((c, i) => (
+                                                        <li key={i} className="text-sm flex items-start gap-1.5">
+                                                            <span className="material-symbols-outlined text-xs text-red-400 mt-0.5">group</span>
+                                                            {c}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                        {result.marketResearch?.leveragePoints && result.marketResearch.leveragePoints.length > 0 && (
+                                            <div className="pt-3 border-t border-primary/10">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">Leverage Points</span>
+                                                <ul className="mt-1 space-y-1">
+                                                    {result.marketResearch.leveragePoints.map((l, i) => (
+                                                        <li key={i} className="text-sm flex items-start gap-1.5">
+                                                            <span className="material-symbols-outlined text-xs text-accent-cyan mt-0.5">trending_up</span>
+                                                            {l}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
+                            </motion.div>
 
-                                {/* First 3 Steps & What Else */}
-                                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-border/50">
-                                    <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-3 flex items-center gap-2">
-                                            <Target className="w-3 h-3" />
-                                            {t.common.immediateActions}
+                            {/* Strategy */}
+                            <motion.div variants={itemVariants} className="col-span-12 md:col-span-4">
+                                <div className="rounded-2xl border border-primary/10 bg-[#1A1A1A] p-6 h-full">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <span className="material-symbols-outlined text-primary">route</span>
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Estratégia</h3>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {result.strategy?.monetization && result.strategy.monetization.length > 0 && (
+                                            <div>
+                                                <span className="text-xs font-bold text-slate-400 uppercase">Monetization</span>
+                                                <ul className="mt-1 space-y-1">
+                                                    {result.strategy.monetization.map((m, i) => (
+                                                        <li key={i} className="text-sm flex items-start gap-1.5">
+                                                            <span className="material-symbols-outlined text-xs text-green-400 mt-0.5">payments</span>
+                                                            {m}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                        {result.strategy?.distribution && result.strategy.distribution.length > 0 && (
+                                            <div className="pt-3 border-t border-primary/10">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">Distribution</span>
+                                                <ul className="mt-1 space-y-1">
+                                                    {result.strategy.distribution.map((d, i) => (
+                                                        <li key={i} className="text-sm flex items-start gap-1.5">
+                                                            <span className="material-symbols-outlined text-xs text-blue-400 mt-0.5">share</span>
+                                                            {d}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                        {result.strategy?.moat && (
+                                            <div className="pt-3 border-t border-primary/10">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">MOAT</span>
+                                                <p className="text-sm mt-0.5">{result.strategy.moat}</p>
+                                            </div>
+                                        )}
+                                        <div className="pt-3 border-t border-primary/10 grid grid-cols-2 gap-3">
+                                            <div className="rounded-lg bg-[#222222] p-3">
+                                                <h4 className="text-[10px] font-bold text-primary mb-2">Month 1</h4>
+                                                <ul className="space-y-1">
+                                                    {result.strategy?.sales1M?.map((item, i) => (
+                                                        <li key={i} className="text-[11px] flex items-start gap-1">
+                                                            <span className="material-symbols-outlined text-[10px] text-accent-cyan mt-0.5">check_circle</span>
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <div className="rounded-lg bg-[#222222] p-3">
+                                                <h4 className="text-[10px] font-bold text-primary mb-2">Month 6</h4>
+                                                <ul className="space-y-1">
+                                                    {result.strategy?.sales6M?.map((item, i) => (
+                                                        <li key={i} className="text-[11px] flex items-start gap-1">
+                                                            <span className="material-symbols-outlined text-[10px] text-accent-cyan mt-0.5">check_circle</span>
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            {result?.execution?.first3Steps?.map((step, i) => (
-                                                <div key={i} className="p-3 bg-secondary/30 rounded-lg border border-white/5 text-sm font-medium text-foreground/90 flex gap-3">
-                                                    <span className="text-muted-foreground font-mono text-xs">{i + 1}</span>
-                                                    {step}
+                                    </div>
+                                </div>
+                            </motion.div>
+
+                            {/* Execution Plan */}
+                            <motion.div variants={itemVariants} className="col-span-12 md:col-span-4">
+                                <div className="rounded-2xl border border-primary/10 bg-[#1A1A1A] p-6 h-full">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-primary">engineering</span>
+                                            <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Plano de Execução</h3>
+                                        </div>
+                                        <button
+                                            onClick={() => onPitch && onPitch(idea, result)}
+                                            className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-primary/25 hover:shadow-glow-primary transition-all"
+                                        >
+                                            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                                            Stress Test
+                                        </button>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {/* 30 / 90 / 180 day plan */}
+                                        {[
+                                            { label: "30 Days", items: result.execution?.plan30d, color: "text-green-400" },
+                                            { label: "90 Days", items: result.execution?.plan90d, color: "text-blue-400" },
+                                            { label: "180 Days", items: result.execution?.plan180d, color: "text-purple-400" },
+                                        ].map((plan) => (
+                                            plan.items && plan.items.length > 0 && (
+                                                <div key={plan.label}>
+                                                    <span className="text-xs font-bold text-slate-400 uppercase">{plan.label}</span>
+                                                    <ul className="mt-1 space-y-1">
+                                                        {plan.items.map((item, i) => (
+                                                            <li key={i} className="text-sm flex items-start gap-1.5">
+                                                                <span className={cn("material-symbols-outlined text-xs mt-0.5", plan.color)}>schedule</span>
+                                                                {item}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
                                                 </div>
-                                            )) || <div className="text-sm text-muted-foreground">No immediate actions available.</div>}
-                                        </div>
-                                    </div>
+                                            )
+                                        ))}
 
-                                    <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-3 flex items-center gap-2">
-                                            <AlertTriangle className="w-3 h-3" />
-                                            {result.classification.path === 'dead_end' ? t.common.realityCheck : t.common.theEdge}
-                                        </div>
-                                        <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-4 py-1">
-                                            "{result.execution.whatElse}"
-                                        </p>
+                                        {/* Team Competences */}
+                                        {result.execution?.teamCompetences && result.execution.teamCompetences.length > 0 && (
+                                            <div className="pt-3 border-t border-primary/10">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">Team Needed</span>
+                                                <div className="flex flex-wrap gap-1.5 mt-1">
+                                                    {result.execution.teamCompetences.map((c, i) => (
+                                                        <span key={i} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary">
+                                                            {c}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Partnership Suggestions */}
+                                        {result.execution?.partnershipSuggestions && result.execution.partnershipSuggestions.length > 0 && (
+                                            <div className="pt-3 border-t border-primary/10">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">Partnerships</span>
+                                                <ul className="mt-1 space-y-1">
+                                                    {result.execution.partnershipSuggestions.map((p, i) => (
+                                                        <li key={i} className="text-sm flex items-start gap-1.5">
+                                                            <span className="material-symbols-outlined text-xs text-amber-400 mt-0.5">handshake</span>
+                                                            {p}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+
+                                        {/* Domain Insight */}
+                                        {result.execution?.whatElse && (
+                                            <div className="pt-3 border-t border-primary/10 rounded-lg bg-primary/5 p-3">
+                                                <span className="text-xs font-bold text-primary uppercase">Insight</span>
+                                                <p className="text-sm mt-1 text-slate-300">{result.execution.whatElse}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-
-                            </div>
-                        </motion.div>
-
+                            </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

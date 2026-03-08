@@ -1,77 +1,41 @@
 "use client";
 
-import React from "react";
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-
 interface IRLScoreProps {
     score: number;
-    label: string;
+    label?: string;
 }
 
-export function IRLScore({ score, label }: IRLScoreProps) {
-    // Determine color based on score
-    const getColor = (s: number) => {
-        if (s < 40) return "text-red-500 border-red-500";
-        if (s < 75) return "text-yellow-500 border-yellow-500";
-        return "text-primary border-primary";
+export function IRLScore({ score, label = "IRL Score" }: IRLScoreProps) {
+    const getGrade = (s: number) => {
+        if (s >= 90) return { grade: "S", color: "#7f0df2" };
+        if (s >= 75) return { grade: "A", color: "#00f5ff" };
+        if (s >= 60) return { grade: "B", color: "#22c55e" };
+        if (s >= 40) return { grade: "C", color: "#eab308" };
+        return { grade: "D", color: "#ef4444" };
     };
 
-    const colorClass = getColor(score);
-    const ringColor = score < 40 ? "stroke-red-500" : score < 75 ? "stroke-yellow-500" : "stroke-[#00FF41]";
-
-    // Circle properties
-    const radius = 60;
-    const circumference = 2 * Math.PI * radius;
-    const strokeDashoffset = circumference - (score / 100) * circumference;
+    const { grade, color } = getGrade(score);
 
     return (
-        <div className="flex flex-col items-center justify-center p-6 border border-border bg-secondary/30 rounded-xl backdrop-blur-sm">
-            <div className="relative w-40 h-40 flex items-center justify-center">
-                {/* Background Circle */}
-                <svg className="w-full h-full transform -rotate-90">
+        <div className="flex flex-col items-center gap-2">
+            <div className="relative size-28">
+                <svg className="size-28 -rotate-90" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="8" className="text-slate-200 dark:text-slate-700" />
                     <circle
-                        cx="80"
-                        cy="80"
-                        r={radius}
-                        stroke="currentColor"
+                        cx="60" cy="60" r="50" fill="none"
+                        stroke={color}
                         strokeWidth="8"
-                        fill="transparent"
-                        className="text-secondary/50"
-                    />
-                    {/* Progress Circle */}
-                    <motion.circle
-                        initial={{ strokeDashoffset: circumference }}
-                        animate={{ strokeDashoffset }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        cx="80"
-                        cy="80"
-                        r={radius}
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="transparent"
-                        strokeDasharray={circumference}
                         strokeLinecap="round"
-                        className={cn("transition-all duration-500", ringColor)}
+                        strokeDasharray={`${(score / 100) * 314} 314`}
+                        style={{ filter: `drop-shadow(0 0 8px ${color}50)` }}
                     />
                 </svg>
-
-                {/* Score Text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <motion.span
-                        className="text-5xl font-mono font-bold tracking-tighter"
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                    >
-                        {score}
-                    </motion.span>
-                    <span className="text-xs uppercase tracking-widest text-muted mt-1">/ 100</span>
+                    <span className="text-3xl font-bold" style={{ color }}>{score}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{grade}</span>
                 </div>
             </div>
-
-            <h3 className="mt-4 text-sm font-semibold uppercase tracking-wider text-muted">
-                {label}
-            </h3>
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{label}</span>
         </div>
     );
 }

@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/lib/generated/prisma
+
+# local databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# other local build artifacts
+/Syntix Prd
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
