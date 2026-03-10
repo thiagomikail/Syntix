@@ -93,7 +93,7 @@ export default async function PublicIdeaPage({ params }: { params: Promise<{ id:
                         {/* IRL Score */}
                         {idea.irlJson && (() => {
                             try {
-                                const irl = JSON.parse(idea.irlJson);
+                                const irl = idea.irlJson as any;
                                 return (
                                     <>
                                         <span>•</span>

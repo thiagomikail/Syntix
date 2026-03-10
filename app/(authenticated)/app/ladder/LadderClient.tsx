@@ -42,7 +42,7 @@ export function LadderClient({ ideas, initialLadder, user }: LadderClientProps) 
             target: sequence[index + 1]
         }));
 
-        const result = await saveLadder(user.id, "Main Ladder", nodes, edges, initialLadder?.id);
+        const result = await saveLadder("Main Ladder", nodes, edges, initialLadder?.id);
         if (result.success && result.ladder?.strengthScore) {
             setStrength(result.ladder.strengthScore);
         }
@@ -95,7 +95,7 @@ export function LadderClient({ ideas, initialLadder, user }: LadderClientProps) 
                         let badgeColor = "#383838";
                         if (idea.refinementJson) {
                             try {
-                                const parsed = JSON.parse(idea.refinementJson);
+                                const parsed = idea.refinementJson as any;
                                 archetypeLabel = parsed.classification?.label || archetypeLabel;
                                 badgeColor = parsed.classification?.badgeColor || badgeColor;
                             } catch (e) { }
@@ -152,11 +152,9 @@ export function LadderClient({ ideas, initialLadder, user }: LadderClientProps) 
                             let archetypeLabel = idea.archetype || "Venture";
                             let badgeColor = "#EC5C39";
                             if (idea.refinementJson) {
-                                try {
-                                    const parsed = JSON.parse(idea.refinementJson);
-                                    archetypeLabel = parsed.classification?.label || archetypeLabel;
-                                    badgeColor = parsed.classification?.badgeColor || badgeColor;
-                                } catch (e) { }
+                                const parsed = idea.refinementJson as any;
+                                archetypeLabel = parsed.classification?.label || archetypeLabel;
+                                badgeColor = parsed.classification?.badgeColor || badgeColor;
                             }
 
                             return (

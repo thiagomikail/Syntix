@@ -60,7 +60,7 @@ export function ArenaIdeaCard({ idea }: { idea: any }) {
                 {/* IRL Score badge */}
                 {idea.irlJson && (() => {
                     try {
-                        const irl = JSON.parse(idea.irlJson);
+                        const irl = idea.irlJson as any;
                         return (
                             <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-bold text-accent-cyan backdrop-blur-sm">
                                 <span className="material-symbols-outlined text-xs">analytics</span>

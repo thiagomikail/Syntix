@@ -63,9 +63,9 @@ export function ArenaCarousel() {
                                     {idea.archetype}
                                 </span>
                             )}
-                            {idea.irlJson && JSON.parse(idea.irlJson).score && (
+                            {idea.irlJson && (idea.irlJson as any).score && (
                                 <div className="scale-[0.4] origin-right -mt-8 -mb-10 -mr-4">
-                                    <IRLScore score={JSON.parse(idea.irlJson).score} label="" />
+                                    <IRLScore score={(idea.irlJson as any).score} label="" />
                                 </div>
                             )}
                             <div className="flex size-6 rounded-full bg-slate-800 border border-slate-700 items-center justify-center text-[10px] font-bold text-white shadow-sm overflow-hidden">

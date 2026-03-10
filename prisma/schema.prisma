@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ----------------------------------------------------------------------------
@@ -78,8 +79,8 @@ model Idea {
   status         String   @default("ideation") // "ideation" | "refinement" | "stresstest"
   isPublic       Boolean  @default(false)
   archetype      String?  // "cash_cow" | "cash_farm" | "new_meat" | "ozempics" | "dead_end"
-  refinementJson String?  // Stores JSON string of the expanded strategy roadmap
-  irlJson        String?  // Stores JSON string of IRL scores (6-axis radar + 3 detailed)
+  refinementJson Json?    // Expanded strategy roadmap (Inception analysis)
+  irlJson        Json?    // IRL scores (6-axis radar + 3 detailed metrics)
   thesisText     String?
   thumbnailUrl   String?  // AI-generated Bloomberg-themed business thumbnail
   averageRating  Float?   // Cached average star rating (1-5)

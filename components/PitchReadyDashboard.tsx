@@ -80,7 +80,7 @@ export function PitchReadyDashboard({ ideaId, isPublic = false, user, initialCon
             // Save the IRL score to the database immediately to display on Arena cards
             if (data && data.score) {
                 try {
-                    await saveIRLScore(ideaId, JSON.stringify(data));
+                    await saveIRLScore(ideaId, data);
                 } catch (scoreErr) {
                     console.error("Failed to persist IRL score:", scoreErr);
                 }
