@@ -6,6 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function submitComment(ideaId: string, content: string, authorName?: string) {
     if (!content.trim()) throw new Error("Comment cannot be empty");
+    if (content.length > 2000) throw new Error("Comment is too long (max 2000 characters)");
 
     const session = await getServerSession(authOptions);
 

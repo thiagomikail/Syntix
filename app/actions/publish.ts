@@ -1,7 +1,9 @@
 "use server";
 import { prisma } from "@/lib/prisma";
+import { requireOwnership } from "@/lib/auth-guards";
 
 export async function togglePublishIdea(id: string, isPublic: boolean) {
+    await requireOwnership(id);
     return await prisma.idea.update({
         where: { id },
         data: { isPublic }
@@ -9,6 +11,7 @@ export async function togglePublishIdea(id: string, isPublic: boolean) {
 }
 
 export async function saveImpulseThesis(id: string, thesis: string) {
+    await requireOwnership(id);
     return await prisma.idea.update({
         where: { id },
         data: { thesisText: thesis }
@@ -16,6 +19,7 @@ export async function saveImpulseThesis(id: string, thesis: string) {
 }
 
 export async function saveIdeaTitle(id: string, title: string) {
+    await requireOwnership(id);
     return await prisma.idea.update({
         where: { id },
         data: { title }
@@ -23,6 +27,7 @@ export async function saveIdeaTitle(id: string, title: string) {
 }
 
 export async function saveIRLScore(id: string, irlJson: string) {
+    await requireOwnership(id);
     return await prisma.idea.update({
         where: { id },
         data: { irlJson }

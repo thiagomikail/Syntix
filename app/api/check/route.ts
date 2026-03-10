@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-guards";
 
 export async function GET(request: Request) {
     try {
+        await requireAdmin();
         const ideas = await prisma.idea.findMany({
             take: 5,
             orderBy: { createdAt: "desc" },

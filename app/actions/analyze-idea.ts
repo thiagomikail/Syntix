@@ -2,19 +2,29 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AnalysisResult } from "@/types/analysis";
+import { validateInput } from "@/app/actions/validate-input";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 export async function analyzeIdea(idea: string, language: string, context?: string): Promise<AnalysisResult> {
-  console.log(`[AnalyzeIdea] Starting analysis for idea: "${idea.substring(0, 20)}..." in language: ${language}`);
+  const validation = await validateInput(idea);
+  if (!validation.safe) {
+    throw new Error(validation.reason || "Input flagged for review.");
+  }
+
+  // Sanitize: strip quotes and newlines to prevent prompt boundary escape
+  const safeIdea = idea.replace(/["\n\r]/g, ' ').substring(0, 2000).trim();
+  const safeContext = context ? context.replace(/["\n\r]/g, ' ').substring(0, 2000).trim() : undefined;
+
+  console.log(`[AnalyzeIdea] Starting analysis for idea: "${safeIdea.substring(0, 20)}..." in language: ${language}`);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const prompt = `
     Act as "The Auditor", a ruthless venture capital analyst AI for the Syntix platform.
-    Analyze the following business idea: "${idea}"
+    Analyze the following business idea: "${safeIdea}"
 
-    ${context ? `CONTEXT FROM PREVIOUS PHASE (Inception Logic Engine):
-    "${context}"
+    ${safeContext ? `CONTEXT FROM PREVIOUS PHASE (Inception Logic Engine):
+    "${safeContext}"
     Use this context to inform your analysis, especially the Market Research and Strategy sections.
     ` : ""}
 
@@ -94,7 +104,7 @@ export async function analyzeIdea(idea: string, language: string, context?: stri
         marketDepth: "Analysis failed. Please try again.",
         unitEconomics: "Analysis failed. Please try again."
       },
-      feedback: "Analysis failed. Reason: " + (error instanceof Error ? error.message : "Unknown error")
+      feedback: "Analysis failed. Please try again."
     };
   }
 }

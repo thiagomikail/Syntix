@@ -1,17 +1,18 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireOwnership } from "@/lib/auth-guards";
 
-export async function generateIdeaThumbnail(ideaId: string, prompt: string): Promise<string | null> {
+// Internal version — no ownership check. Used by server-side callers (ideation, backfill routes)
+// that already have their own auth guards.
+export async function generateIdeaThumbnailInternal(ideaId: string, prompt: string): Promise<string | null> {
     if (!prompt) return null;
 
     try {
         console.log(`[Image Gen] Generating with Pollinations for idea ${ideaId} with prompt: ${prompt.substring(0, 50)}...`);
 
-        // Aggressively sanitize the prompt for URL safety and API limits
         const cleanPrompt = prompt.replace(/[\r\n]+/g, ' ').replace(/"/g, '').substring(0, 180).trim();
 
-        // Use Pollinations for free, keyless image generation
         const seed = Math.floor(Math.random() * 100000);
         const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=800&height=500&nologo=true&seed=${seed}`;
 
@@ -26,7 +27,6 @@ export async function generateIdeaThumbnail(ideaId: string, prompt: string): Pro
         const base64Image = buffer.toString('base64');
         const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 
-        // Save to database
         await prisma.idea.update({
             where: { id: ideaId },
             data: { thumbnailUrl: dataUrl }
@@ -36,8 +36,7 @@ export async function generateIdeaThumbnail(ideaId: string, prompt: string): Pro
     } catch (error: any) {
         console.error("[Image Gen] Failed to generate thumbnail:", error.message);
 
-        // Generate a beautiful fallback dynamic SVG
-        const safePrompt = prompt.replace(/[<&>]/g, ' ').substring(0, 60);
+        const safePrompt = encodeURIComponent(prompt.replace(/[<>&"']/g, ' ').substring(0, 60));
         const svg = `
 <svg width="1024" height="576" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -56,12 +55,10 @@ export async function generateIdeaThumbnail(ideaId: string, prompt: string): Pro
   </defs>
   <rect width="100%" height="100%" fill="url(#bg)" />
   <circle cx="50%" cy="50%" r="200" fill="url(#accent)" filter="url(#glow)" opacity="0.3" />
-  <text x="50%" y="45%" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="48" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="4">SYNTIX CONCEPT</text>
-  <text x="50%" y="55%" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="20" fill="#94A3B8" text-anchor="middle" dominant-baseline="middle" opacity="0.8">${safePrompt}...</text>
+  <text x="50%" y="50%" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="48" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="4">SYNTIX CONCEPT</text>
 </svg>`.trim();
         const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 
-        // Save fallback to database
         try {
             await prisma.idea.update({
                 where: { id: ideaId },
@@ -73,4 +70,10 @@ export async function generateIdeaThumbnail(ideaId: string, prompt: string): Pro
 
         return dataUrl;
     }
+}
+
+// Public-facing server action — requires the caller to own the idea.
+export async function generateIdeaThumbnail(ideaId: string, prompt: string): Promise<string | null> {
+    await requireOwnership(ideaId);
+    return generateIdeaThumbnailInternal(ideaId, prompt);
 }

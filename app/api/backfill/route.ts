@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { generateIdeaThumbnail } from "@/app/actions/generate-image";
+import { generateIdeaThumbnailInternal as generateIdeaThumbnail } from "@/app/actions/generate-image";
+import { requireAdmin } from "@/lib/auth-guards";
 
 export async function GET(request: Request) {
     try {
+        await requireAdmin();
         const ideas = await prisma.idea.findMany({
             where: {
                 OR: [

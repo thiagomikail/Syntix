@@ -19,7 +19,7 @@ export function CollaborationForm({ ideaId }: { ideaId: string }) {
 
         setIsSubmitting(true);
         try {
-            await submitCollaboration(ideaId, userId, type, content);
+            await submitCollaboration(ideaId, type, content);
             setSuccess(true);
             setContent("");
             setTimeout(() => setSuccess(false), 3000);

@@ -9,6 +9,12 @@ export async function claimGuestAccount(newCallsign: string) {
         return { error: "Callsign is required" };
     }
 
+    const RESERVED = ["admin", "root", "support", "syntix", "moderator", "staff"];
+    const validCallsign = /^[a-zA-Z0-9_]{3,20}$/.test(newCallsign.trim());
+    if (!validCallsign || RESERVED.includes(newCallsign.trim().toLowerCase())) {
+        return { error: "Callsign must be 3–20 alphanumeric characters (letters, numbers, underscores)." };
+    }
+
     try {
         const session = await getServerSession(authOptions);
 
@@ -29,15 +35,8 @@ export async function claimGuestAccount(newCallsign: string) {
         });
 
         if (existingUser && existingUser.id !== session.user.id) {
-            // If a real account already exists, we need to migrate the ideas to it!
-            await prisma.idea.updateMany({
-                where: { userId: session.user.id },
-                data: { userId: existingUser.id }
-            });
-
-            // We can optionally delete the guest account, but returning a flag to force sign-out
-            // so the user can sign in with their real account to see the migrated ideas.
-            return { success: true, requiresRelogin: true, message: "Ideas migrated! Please sign in with your real account." };
+            // Callsign already taken by a different account — reject to prevent idea injection.
+            return { error: "This callsign is already taken. Please choose a different one." };
         }
 
         // If target account doesn't exist, we just rename the current Guest account

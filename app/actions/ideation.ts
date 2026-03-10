@@ -1,7 +1,7 @@
 "use server";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { generateIdeaThumbnail } from "./generate-image";
+import { generateIdeaThumbnailInternal as generateIdeaThumbnail } from "./generate-image";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
@@ -20,6 +20,15 @@ export async function generateChannelIdeas(ideaId: string, channelId: string, in
 
 export async function generateConcept(ideaId: string, channel: string, input: string, language: string) {
     if (!input.trim()) return null;
+
+    const { validateInput } = await import("@/app/actions/validate-input");
+    const validation = await validateInput(input);
+    if (!validation.safe) {
+        return validation.reason || "Input flagged for review.";
+    }
+
+    // Sanitize: strip quotes and newlines to prevent prompt boundary escape
+    const safeInput = input.replace(/["\n\r]/g, ' ').substring(0, 2000).trim();
 
     try {
         const model = genAI.getGenerativeModel({
@@ -41,7 +50,7 @@ export async function generateConcept(ideaId: string, channel: string, input: st
 
         const prompt = `
             You are an expert venture builder. 
-            User Input (${channel}): "${input}"
+            User Input (${channel}): "${safeInput}"
             
             Task: ${specificPrompt}
             
@@ -106,6 +115,6 @@ export async function generateConcept(ideaId: string, channel: string, input: st
         return safePitch.trim();
     } catch (error: any) {
         console.error("[Ideation] Error generating concept:", error);
-        return `Error: ${error.message || "Unknown error"}`;
+        return `Error: Failed to generate concept. Please try again.`;
     }
 }

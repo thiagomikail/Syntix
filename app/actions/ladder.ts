@@ -1,14 +1,23 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireSession } from "@/lib/auth-guards";
 
-export async function saveLadder(userId: string, name: string, nodes: any[], edges: any[], ladderId?: string) {
+export async function saveLadder(name: string, nodes: any[], edges: any[], ladderId?: string) {
+    const session = await requireSession();
+    const userId = session.user.id;
+
     try {
         const nodesJson = JSON.stringify(nodes);
         const edgesJson = JSON.stringify(edges);
         const strengthScore = calculateStrength(nodes, edges);
 
         if (ladderId) {
+            // Verify ownership of the existing ladder
+            const existing = await prisma.ladder.findUnique({ where: { id: ladderId }, select: { userId: true } });
+            if (!existing) throw new Error("Not found");
+            if (existing.userId !== userId) throw new Error("Forbidden");
+
             const updated = await prisma.ladder.update({
                 where: { id: ladderId },
                 data: { name, nodesJson, edgesJson, strengthScore }
@@ -29,8 +38,6 @@ export async function saveLadder(userId: string, name: string, nodes: any[], edg
 }
 
 function calculateStrength(nodes: any[], edges: any[]): number {
-    // A naive implementation to award points based on length and connectivity
-    // If we have 3 nodes connected, that's better than 1 node.
     let score = nodes.length * 10;
     score += edges.length * 15;
     return Math.min(score, 100);

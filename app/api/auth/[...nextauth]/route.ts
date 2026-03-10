@@ -20,20 +20,21 @@ export const authOptions: NextAuthOptions = {
                 username: { label: "Callsign", type: "text", placeholder: "Maverick" }
             },
             async authorize(credentials) {
-                if (credentials?.username) {
-                    // Create or find user in DB so relations work perfectly
-                    const email = `${credentials.username}@syntix.local`;
-                    const user = await prisma.user.upsert({
-                        where: { email },
-                        update: {},
-                        create: {
-                            name: credentials.username,
-                            email,
-                        }
-                    });
-                    return { id: user.id, name: user.name, email: user.email };
-                }
-                return null;
+                const username = credentials?.username?.trim();
+                if (!username) return null;
+
+                // Enforce valid callsign format and block reserved names
+                const RESERVED = ["admin", "root", "support", "syntix", "moderator", "staff"];
+                const validCallsign = /^[a-zA-Z0-9_]{3,20}$/.test(username);
+                if (!validCallsign || RESERVED.includes(username.toLowerCase())) return null;
+
+                const email = `${username}@syntix.local`;
+                const user = await prisma.user.upsert({
+                    where: { email },
+                    update: {},
+                    create: { name: username, email }
+                });
+                return { id: user.id, name: user.name, email: user.email };
             }
         })
     ],

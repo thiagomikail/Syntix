@@ -61,8 +61,17 @@ const inceptionSchema: Schema = {
 };
 
 import { prisma } from "@/lib/prisma";
+import { validateInput } from "@/app/actions/validate-input";
 
 export async function classifyIdea(ideaId: string, ideaText: string, language: string = 'en'): Promise<InceptionAnalysis> {
+  const validation = await validateInput(ideaText);
+  if (!validation.safe) {
+    throw new Error(validation.reason || "Input flagged for review.");
+  }
+
+  // Sanitize: strip quotes and newlines to prevent prompt boundary escape
+  const safeIdeaText = ideaText.replace(/["\n\r]/g, ' ').substring(0, 2000).trim();
+
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
     generationConfig: {
@@ -73,9 +82,9 @@ export async function classifyIdea(ideaId: string, ideaText: string, language: s
 
   const prompt = `
     Act as "The Logic Engine", a strategic business analyst AI for the Syntix platform.
-    Analyze the following business idea: "${ideaText}"
+    Analyze the following business idea: "${safeIdeaText}"
 
-    Language: ${language} (Respond strictly in this language).
+    Language: ${language === 'pt' ? 'Portuguese (Brazil)' : 'English'} (Respond strictly in this language).
 
     Your task is to classify this idea into ONE of the following 5 Business Archetypes:
 
