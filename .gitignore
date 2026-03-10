@@ -48,6 +48,9 @@ next-env.d.ts
 *.sqlite
 *.sqlite3
 
+# legacy filesystem user data store
+/data/users/
+
 # other local build artifacts
 /Syntix Prd
 *.json
