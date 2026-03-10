@@ -47,16 +47,17 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  // Syntix Specific Extensions
   role          String    @default("USER") // GUEST, USER, ADMIN
   createdAt     DateTime  @default(now())
 
-  // Relations
-  accounts Account[]
-  sessions Session[]
-  ideas    Idea[]
-  votes    Vote[]
-  comments Comment[]
+  accounts       Account[]
+  sessions       Session[]
+  ideas          Idea[]
+  votes          Vote[]
+  comments       Comment[]
+  collaborations Collaboration[] @relation("FromUser")
+  pointsLedger   PointsLedger[]
+  ladders        Ladder[]
 }
 
 model VerificationToken {
@@ -68,7 +69,7 @@ model VerificationToken {
 }
 
 // ----------------------------------------------------------------------------
-// Syntix Domain Models (PRD v2)
+// Syntix Domain Models
 // ----------------------------------------------------------------------------
 
 model Idea {
@@ -82,14 +83,17 @@ model Idea {
   refinementJson Json?    // Expanded strategy roadmap (Inception analysis)
   irlJson        Json?    // IRL scores (6-axis radar + 3 detailed metrics)
   thesisText     String?
-  thumbnailUrl   String?  // AI-generated Bloomberg-themed business thumbnail
-  averageRating  Float?   // Cached average star rating (1-5)
+  thumbnailUrl   String?
+  averageRating  Float?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  votes    Vote[]
-  comments Comment[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  votes          Vote[]
+  comments       Comment[]
+  collaborations Collaboration[]
+
+  @@index([userId])
 }
 
 model Vote {
@@ -108,11 +112,50 @@ model Vote {
 model Comment {
   id         String   @id @default(cuid())
   ideaId     String
-  userId     String?  // null = anonymous comment
-  authorName String?  // Display name for anonymous comments
+  userId     String?
+  authorName String?
   content    String
   createdAt  DateTime @default(now())
 
   idea Idea  @relation(fields: [ideaId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Collaboration {
+  id         String   @id @default(cuid())
+  ideaId     String
+  fromUserId String
+  type       String   // "Technical Suggestion" | "Risk Flag" | "GTM Connection"
+  content    String
+  status     String   @default("pending") // "pending" | "accepted" | "rejected"
+  createdAt  DateTime @default(now())
+
+  idea     Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  fromUser User @relation("FromUser", fields: [fromUserId], references: [id], onDelete: Cascade)
+}
+
+model PointsLedger {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "CP" (Collaboration Points), etc.
+  amount    Int
+  reason    String
+  refType   String?
+  refId     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Ladder {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  nodesJson     String
+  edgesJson     String
+  strengthScore Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

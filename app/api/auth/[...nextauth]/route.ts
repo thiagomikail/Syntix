@@ -62,8 +62,8 @@ export const authOptions: NextAuthOptions = {
                     if (dbUser) {
                         token.role = dbUser.role;
                     }
-                } catch (e) {
-                    console.error("JWT role fetch error", e);
+                } catch {
+                    // Silently ignore — user may have been deleted; token will expire naturally
                 }
             }
             return token;

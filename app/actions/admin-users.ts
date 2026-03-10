@@ -5,9 +5,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
 
+const RESERVED_CALLSIGNS = ["admin", "root", "support", "syntix", "moderator", "staff"];
+const CALLSIGN_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
+
 async function requireAdmin() {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session?.user as any)?.role !== "ADMIN") {
         throw new Error("Unauthorized");
     }
 }
@@ -22,49 +25,58 @@ export async function updateUserRole(userId: string, newRole: "USER" | "ADMIN") 
         revalidatePath("/admin/users");
         return { success: true };
     } catch (e: any) {
-        return { error: e.message || "Failed to update role" };
+        console.error("updateUserRole error:", e);
+        return { error: "Failed to update role" };
     }
 }
 
 export async function updateUserCallsign(userId: string, newCallsign: string) {
     try {
-        if (!newCallsign || newCallsign.trim() === "") {
-            throw new Error("Callsign cannot be empty");
-        }
         await requireAdmin();
-        const email = `${newCallsign.trim()}@syntix.local`;
 
+        if (!newCallsign?.trim()) throw new Error("Callsign cannot be empty");
+
+        const trimmed = newCallsign.trim();
+        if (!CALLSIGN_REGEX.test(trimmed) || RESERVED_CALLSIGNS.includes(trimmed.toLowerCase())) {
+            return { error: "Invalid callsign format or reserved name." };
+        }
+
+        const email = `${trimmed}@syntix.local`;
         const existing = await prisma.user.findUnique({ where: { email } });
         if (existing && existing.id !== userId) {
-            return { error: "Callsign is already in use by another user." };
+            return { error: "Callsign is already in use." };
         }
 
         await prisma.user.update({
             where: { id: userId },
-            data: { name: newCallsign.trim(), email }
+            data: { name: trimmed, email }
         });
 
-        // Clear sessions to force re-login
-        await prisma.session.deleteMany({
-            where: { userId }
-        });
+        await prisma.session.deleteMany({ where: { userId } });
 
         revalidatePath("/admin/users");
         return { success: true };
     } catch (e: any) {
-        return { error: e.message || "Failed to update callsign" };
+        console.error("updateUserCallsign error:", e);
+        return { error: "Failed to update callsign" };
     }
 }
 
 export async function deleteUser(userId: string) {
     try {
         await requireAdmin();
-        await prisma.user.delete({
-            where: { id: userId }
-        });
+
+        // Prevent self-deletion
+        const session = await getServerSession(authOptions);
+        if ((session?.user as any)?.id === userId) {
+            return { error: "You cannot delete your own account." };
+        }
+
+        await prisma.user.delete({ where: { id: userId } });
         revalidatePath("/admin/users");
         return { success: true };
     } catch (e: any) {
-        return { error: e.message || "Failed to delete user" };
+        console.error("deleteUser error:", e);
+        return { error: "Failed to delete user" };
     }
 }

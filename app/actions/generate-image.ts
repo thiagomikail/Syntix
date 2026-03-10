@@ -16,7 +16,7 @@ export async function generateIdeaThumbnailInternal(ideaId: string, prompt: stri
         const seed = Math.floor(Math.random() * 100000);
         const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=800&height=500&nologo=true&seed=${seed}`;
 
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
 
         if (!response.ok) {
             throw new Error(`API Error ${response.status}: Failed to fetch image`);

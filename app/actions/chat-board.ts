@@ -2,13 +2,18 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Message, Persona } from "@/types/analysis";
+import { requireSession } from "@/lib/auth-guards";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 export async function chatWithBoard(history: Message[], userInput: string, language: string): Promise<Message> {
+    const session = await requireSession();
+    checkRateLimit(session.user.id, "chat", 20, 60_000);
+
     const systemPrompt = `
      You are "The AI Board" of Syntix, a group of 4 expert personas stress-testing a founder's business idea.
-    
+
     The Personas:
     1. "The Skeptic" (Tag: [skeptic]): Risk-averse, critical, challenges the user on differentials and why this idea will fail. Asks hard questions about competition and defensibility.
     2. "The Growth Strategist" (Tag: [growth]): Focuses on partnerships, market growth, distribution channels, and strategies for rapid scaling. Optimistic but pragmatic.
@@ -38,7 +43,7 @@ export async function chatWithBoard(history: Message[], userInput: string, langu
 
     // Sanitization: Ensure strictly alternating roles [user, model, user, model...]
     const cleanHistory = [];
-    let lastRole = "model"; // expecting 'user' next
+    let lastRole = "model";
 
     for (const msg of geminiHistory) {
         if (!msg.parts[0].text) continue;
@@ -48,44 +53,28 @@ export async function chatWithBoard(history: Message[], userInput: string, langu
         }
     }
 
-    // If the first message in our cleaned history is 'model', we drop it.
     if (cleanHistory.length > 0 && cleanHistory[0].role === "model") {
         cleanHistory.shift();
     }
 
-    try {
-        const chat = model.startChat({
-            history: cleanHistory,
-        });
+    // Sanitize user input
+    const safeInput = userInput.replace(/[\r\n]{3,}/g, '\n').substring(0, 1000).trim();
 
-        const result = await chat.sendMessage(userInput);
+    try {
+        const chat = model.startChat({ history: cleanHistory });
+        const result = await chat.sendMessage(safeInput);
         const response = await result.response;
         const text = response.text();
 
-        let persona: Persona = "skeptic"; // default
+        let persona: Persona = "skeptic";
         let content = text;
 
-        if (text.includes("[skeptic]")) {
-            persona = "skeptic";
-            content = text.replace("[skeptic]", "").trim();
-        } else if (text.includes("[growth]")) {
-            persona = "growth";
-            content = text.replace("[growth]", "").trim();
-        } else if (text.includes("[cfo]")) {
-            persona = "cfo";
-            content = text.replace("[cfo]", "").trim();
-        } else if (text.includes("[builder]")) {
-            persona = "builder";
-            content = text.replace("[builder]", "").trim();
-        }
+        if (text.includes("[skeptic]")) { persona = "skeptic"; content = text.replace("[skeptic]", "").trim(); }
+        else if (text.includes("[growth]")) { persona = "growth"; content = text.replace("[growth]", "").trim(); }
+        else if (text.includes("[cfo]")) { persona = "cfo"; content = text.replace("[cfo]", "").trim(); }
+        else if (text.includes("[builder]")) { persona = "builder"; content = text.replace("[builder]", "").trim(); }
 
-        return {
-            id: Date.now().toString(),
-            role: "ai",
-            persona: persona,
-            content: content,
-            timestamp: new Date().toISOString()
-        };
+        return { id: Date.now().toString(), role: "ai", persona, content, timestamp: new Date().toISOString() };
 
     } catch (error: any) {
         console.error("AI Chat Error:", error);
@@ -99,12 +88,6 @@ export async function chatWithBoard(history: Message[], userInput: string, langu
             userMessage = "Communication protocol error. Please try again.";
         }
 
-        return {
-            id: Date.now().toString(),
-            role: "ai",
-            persona: "skeptic",
-            content: userMessage,
-            timestamp: new Date().toISOString()
-        };
+        return { id: Date.now().toString(), role: "ai", persona: "skeptic", content: userMessage, timestamp: new Date().toISOString() };
     }
 }

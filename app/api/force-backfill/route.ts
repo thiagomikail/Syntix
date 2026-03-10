@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { generateIdeaThumbnailInternal as generateIdeaThumbnail } from "@/app/actions/generate-image";
 import { requireAdmin } from "@/lib/auth-guards";
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
     try {
         await requireAdmin();
         const ideas = await prisma.idea.findMany({ select: { id: true, title: true, rawText: true, thumbnailUrl: true } });

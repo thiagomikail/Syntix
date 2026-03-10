@@ -2,6 +2,8 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generateIdeaThumbnailInternal as generateIdeaThumbnail } from "./generate-image";
+import { requireSession } from "@/lib/auth-guards";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
@@ -20,6 +22,8 @@ export async function generateChannelIdeas(ideaId: string, channelId: string, in
 
 export async function generateConcept(ideaId: string, channel: string, input: string, language: string) {
     if (!input.trim()) return null;
+    const session = await requireSession();
+    checkRateLimit(session.user.id, "ideation", 10, 60_000);
 
     const { validateInput } = await import("@/app/actions/validate-input");
     const validation = await validateInput(input);

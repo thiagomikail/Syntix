@@ -15,7 +15,7 @@ export function CollaborationOwnerActions({ collaborationId, ideaId, authorId }:
 
     const handleResolve = async (status: "accepted" | "rejected") => {
         setIsProcessing(true);
-        await resolveCollaboration(collaborationId, status, ideaId, authorId);
+        await resolveCollaboration(collaborationId, status);
         // UI will implicitly update due to revalidatePath from sever action
         setIsProcessing(false);
     };

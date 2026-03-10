@@ -10,12 +10,16 @@ export async function submitComment(ideaId: string, content: string, authorName?
 
     const session = await getServerSession(authOptions);
 
-    // Allow anonymous comments but track user if logged in
+    // Sanitize optional anonymous author name
+    const safeAuthorName = authorName
+        ? authorName.trim().substring(0, 100).replace(/[<>]/g, '')
+        : undefined;
+
     const comment = await prisma.comment.create({
         data: {
             ideaId,
             userId: session?.user?.id || null,
-            authorName: session?.user?.name || authorName || "Anonymous",
+            authorName: session?.user?.name || safeAuthorName || "Anonymous",
             content: content.trim(),
         },
     });
@@ -24,10 +28,28 @@ export async function submitComment(ideaId: string, content: string, authorName?
 }
 
 export async function getComments(ideaId: string, limit: number = 10) {
+    // Verify the idea is public before returning comments
+    const idea = await prisma.idea.findUnique({
+        where: { id: ideaId },
+        select: { isPublic: true },
+    });
+
+    if (!idea?.isPublic) {
+        // If not public, only return comments if the caller owns the idea
+        const session = await getServerSession(authOptions);
+        const ownedIdea = await prisma.idea.findUnique({
+            where: { id: ideaId },
+            select: { userId: true },
+        });
+        if (!session?.user?.id || ownedIdea?.userId !== session.user.id) {
+            throw new Error("Forbidden");
+        }
+    }
+
     const comments = await prisma.comment.findMany({
         where: { ideaId },
         orderBy: { createdAt: "desc" },
-        take: limit,
+        take: Math.min(limit, 100),
         select: {
             id: true,
             authorName: true,

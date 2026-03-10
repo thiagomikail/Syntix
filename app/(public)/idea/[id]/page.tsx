@@ -15,8 +15,14 @@ const archetypeLabels: Record<string, string> = {
     "dead_end": "⚠️ Dead End",
 };
 
+const CUID_REGEX = /^c[a-z0-9]{24,}$/i;
+
 export default async function PublicIdeaPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
+
+    // CRIT-5: Reject non-CUID IDs before hitting the database
+    if (!CUID_REGEX.test(id)) return notFound();
+
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -107,7 +113,7 @@ export default async function PublicIdeaPage({ params }: { params: Promise<{ id:
                         })()}
                     </div>
 
-                    {idea.thumbnailUrl && (
+                    {idea.thumbnailUrl && /^data:image\/(jpeg|png|webp|svg\+xml);base64,/.test(idea.thumbnailUrl) && (
                         <div className="w-full h-64 md:h-96 rounded-2xl overflow-hidden mt-8 relative border border-primary/20 shadow-lg shadow-black/50">
                             <img src={idea.thumbnailUrl} alt={idea.title || "Business Thumbnail"} className="object-cover w-full h-full" />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] to-transparent" />

@@ -72,22 +72,13 @@ export async function classifyIdea(ideaId: string, ideaText: string, language: s
   // Sanitize: strip quotes and newlines to prevent prompt boundary escape
   const safeIdeaText = ideaText.replace(/["\n\r]/g, ' ').substring(0, 2000).trim();
 
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: inceptionSchema
-    }
-  });
-
-  const prompt = `
+  // Structural prompt injection defence: system instructions are set via systemInstruction,
+  // user input is passed as a separate user message — Gemini cannot confuse the two.
+  const systemInstruction = `
     Act as "The Logic Engine", a strategic business analyst AI for the Syntix platform.
-    Analyze the following business idea: "${safeIdeaText}"
-
     Language: ${language === 'pt' ? 'Portuguese (Brazil)' : 'English'} (Respond strictly in this language).
 
-    Your task is to classify this idea into ONE of the following 5 Business Archetypes:
-
+    Your task is to classify the user-submitted business idea into ONE of the following 5 Business Archetypes:
     1. Cash Cow — Low scale, high margin businesses. Solo-run, indie, revenue-first, high profitability per unit.
     2. Cash Farm — Businesses that scale through specialists. Service companies, agencies, B2B consulting that grow with expert talent.
     3. New Meat — Businesses that Venture Capital seeks to back. High risk, high potential return, large market, rapid growth.
@@ -95,33 +86,25 @@ export async function classifyIdea(ideaId: string, ideaText: string, language: s
     5. Dead End — No return even with risk. Fundamentally flawed, illegal, physically impossible, or solved by existing free tools.
 
     Then, provide deep strategic research covering:
-
-    A) MARKET RESEARCH:
-    - Target persona (demographics, behaviors, pain points, buying patterns)
-    - Top 3-5 competitors with analysis
-    - Exploitable leverage points
-    - TAM (Total Addressable Market), SAM (Serviceable Available Market), SOM (Serviceable Obtainable Market)
-
-    B) STRATEGY:
-    - Possible monetization/revenue models
-    - Distribution channel strategies
-    - How to build a competitive MOAT
-    - Concrete steps for Month 1 and Month 6
-
-    C) EXECUTION PLAN:
-    - Immediate first 3 steps
-    - 30-day plan items
-    - 90-day plan items
-    - 180-day plan items
-    - Required team competences
-    - Strategic partnership suggestions
-    - Domain-specific insight
+    A) MARKET RESEARCH: Target persona, Top 3-5 competitors, Exploitable leverage points, TAM/SAM/SOM.
+    B) STRATEGY: Monetization models, Distribution channels, Competitive MOAT, Steps for Month 1 and Month 6.
+    C) EXECUTION PLAN: First 3 steps, 30/90/180-day plans, Required team competences, Strategic partnerships, Domain insight.
 
     Return the result strictly as a valid JSON object matching the schema.
   `;
 
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash",
+    systemInstruction,
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: inceptionSchema
+    }
+  });
+
   try {
-    const result = await model.generateContent(prompt);
+    // User input passed as a separate message — structurally isolated from system instructions
+    const result = await model.generateContent(safeIdeaText);
     const text = result.response.text();
     // Clean up markdown code blocks if present (common issue with Gemini)
     let cleanText = text.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
@@ -138,7 +121,7 @@ export async function classifyIdea(ideaId: string, ideaText: string, language: s
       where: { id: ideaId },
       data: {
         archetype: analysis.classification.path,
-        refinementJson: analysis,
+        refinementJson: analysis as any,
         status: "refinement"
       }
     });

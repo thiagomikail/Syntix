@@ -36,7 +36,7 @@ export async function claimGuestAccount(newCallsign: string) {
 
         if (existingUser && existingUser.id !== session.user.id) {
             // Callsign already taken by a different account — reject to prevent idea injection.
-            return { error: "This callsign is already taken. Please choose a different one." };
+            return { error: "Callsign unavailable. Please choose a different one." };
         }
 
         // If target account doesn't exist, we just rename the current Guest account

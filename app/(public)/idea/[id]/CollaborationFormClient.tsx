@@ -20,7 +20,7 @@ export function CollaborationFormClient({ ideaId, userId }: CollaborationFormCli
         if (!feedback.trim()) return;
 
         setIsSubmitting(true);
-        const result = await submitCollaboration(ideaId, userId, type, feedback);
+        const result = await submitCollaboration(ideaId, type, feedback);
         if (result.success) {
             setFeedback("");
         } else {

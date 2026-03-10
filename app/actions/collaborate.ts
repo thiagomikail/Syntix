@@ -3,8 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth-guards";
 
+const ALLOWED_TYPES = ["Technical Suggestion", "Risk Flag", "GTM Connection"] as const;
+
 export async function submitCollaboration(ideaId: string, type: string, feedback: string) {
     const session = await requireSession();
+
+    if (!ALLOWED_TYPES.includes(type as any)) {
+        throw new Error("Invalid collaboration type");
+    }
+    if (!feedback.trim()) throw new Error("Feedback cannot be empty");
+    if (feedback.length > 2000) throw new Error("Feedback is too long (max 2000 characters)");
 
     try {
         await prisma.collaboration.create({
@@ -12,7 +20,7 @@ export async function submitCollaboration(ideaId: string, type: string, feedback
                 ideaId,
                 fromUserId: session.user.id,
                 type,
-                content: feedback,
+                content: feedback.trim(),
                 status: "pending"
             }
         });
@@ -29,7 +37,6 @@ export async function resolveCollaboration(collaborationId: string, status: "acc
     const session = await requireSession();
 
     try {
-        // Fetch the collaboration and verify the caller owns the idea
         const collaboration = await prisma.collaboration.findUnique({
             where: { id: collaborationId },
             include: { idea: { select: { userId: true } } }
@@ -44,7 +51,6 @@ export async function resolveCollaboration(collaborationId: string, status: "acc
         });
 
         if (status === "accepted") {
-            // Award CP to the collaborator (fromUserId), derived from DB — not client input
             await prisma.pointsLedger.create({
                 data: {
                     userId: collaboration.fromUserId,
