@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function submitVote(ideaId: string, score: number) {
     const session = await getServerSession(authOptions);
@@ -10,6 +11,14 @@ export async function submitVote(ideaId: string, score: number) {
 
     if (!Number.isInteger(score) || score < 1 || score > 5) {
         throw new Error("Score must be an integer between 1 and 5");
+    }
+
+    await checkRateLimit(session.user.id, "vote", 10, 60_000);
+
+    const idea = await prisma.idea.findUnique({ where: { id: ideaId } });
+    if (!idea) throw new Error("Not found");
+    if (!idea.isPublic && idea.userId !== session.user.id) {
+        throw new Error("Forbidden");
     }
 
     // Use a transaction to prevent race conditions on averageRating

@@ -19,9 +19,20 @@ export default async function LadderPage() {
         orderBy: { createdAt: "desc" }
     });
 
+    const processedIdeas = userIdeas.map(idea => ({
+        ...idea,
+        refinementJson: typeof idea.refinementJson === 'string' ? JSON.parse(idea.refinementJson) : idea.refinementJson,
+    }));
+
+    const processedLadder = ladder ? {
+        ...ladder,
+        nodesJson: typeof ladder.nodesJson === 'string' ? JSON.parse(ladder.nodesJson) : ladder.nodesJson,
+        edgesJson: typeof ladder.edgesJson === 'string' ? JSON.parse(ladder.edgesJson) : ladder.edgesJson,
+    } : null;
+
     return (
         <div className="h-full w-full">
-            <LadderClient ideas={userIdeas} initialLadder={ladder} user={session.user} />
+            <LadderClient ideas={processedIdeas} initialLadder={processedLadder} user={session.user} />
         </div>
     );
 }

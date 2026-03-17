@@ -33,7 +33,7 @@ export function AuthModal({ isOpen, onClose, title = "Sign In to Syntix", descri
                 console.error("Login failed:", result.error);
                 alert("Login failed. Please try again.");
             } else {
-                router.refresh(); // Refresh server components to get the new session
+                window.location.reload(); // Force full reload for session stability
                 if (onSuccess) onSuccess();
                 else onClose();
             }
@@ -56,7 +56,7 @@ export function AuthModal({ isOpen, onClose, title = "Sign In to Syntix", descri
             if (result?.error) {
                 console.error("Guest login failed:", result.error);
             } else {
-                router.refresh();
+                window.location.reload(); // Force full reload for session stability
                 if (onSuccess) onSuccess();
                 else onClose();
             }

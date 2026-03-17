@@ -12,15 +12,17 @@ export async function submitComment(ideaId: string, content: string, authorName?
 
     // Sanitize optional anonymous author name
     const safeAuthorName = authorName
-        ? authorName.trim().substring(0, 100).replace(/[<>]/g, '')
+        ? authorName.trim().substring(0, 100).replace(/[<>\/\\'"]/g, '')
         : undefined;
+
+    const safeContent = content.replace(/<[^>]*>?/gm, '').trim();
 
     const comment = await prisma.comment.create({
         data: {
             ideaId,
             userId: session?.user?.id || null,
             authorName: session?.user?.name || safeAuthorName || "Anonymous",
-            content: content.trim(),
+            content: safeContent,
         },
     });
 
@@ -46,10 +48,12 @@ export async function getComments(ideaId: string, limit: number = 10) {
         }
     }
 
+    const safeLimit = Math.max(1, Math.min(limit, 100));
+
     const comments = await prisma.comment.findMany({
         where: { ideaId },
         orderBy: { createdAt: "desc" },
-        take: Math.min(limit, 100),
+        take: safeLimit,
         select: {
             id: true,
             authorName: true,

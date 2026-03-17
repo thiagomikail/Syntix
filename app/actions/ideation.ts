@@ -2,7 +2,7 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generateIdeaThumbnailInternal as generateIdeaThumbnail } from "./generate-image";
-import { requireSession } from "@/lib/auth-guards";
+import { requireSession, requireOwnership } from "@/lib/auth-guards";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
@@ -16,6 +16,7 @@ const channelNameMap: Record<string, string> = {
 };
 
 export async function generateChannelIdeas(ideaId: string, channelId: string, input: string): Promise<string | null> {
+    await requireSession();
     const channelName = channelNameMap[channelId] || channelId;
     return generateConcept(ideaId, channelName, input, "en");
 }
@@ -23,7 +24,8 @@ export async function generateChannelIdeas(ideaId: string, channelId: string, in
 export async function generateConcept(ideaId: string, channel: string, input: string, language: string) {
     if (!input.trim()) return null;
     const session = await requireSession();
-    checkRateLimit(session.user.id, "ideation", 10, 60_000);
+    await requireOwnership(ideaId);
+    await checkRateLimit(session.user.id, "ideation", 10, 60_000);
 
     const { validateInput } = await import("@/app/actions/validate-input");
     const validation = await validateInput(input);
@@ -35,13 +37,6 @@ export async function generateConcept(ideaId: string, channel: string, input: st
     const safeInput = input.replace(/["\n\r]/g, ' ').substring(0, 2000).trim();
 
     try {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
-            generationConfig: {
-                responseMimeType: "application/json",
-            }
-        });
-
         const channelPrompts: Record<string, string> = {
             "Direct Input": "Propose a startup solution based on this input.",
             "Pain-Storming": "The user has described a frustration or pain point. Analyze this friction and propose an elegant product solution that directly addresses it. Focus on the problem-solution fit and why this is a real pain.",
@@ -49,12 +44,10 @@ export async function generateConcept(ideaId: string, channel: string, input: st
             "Demandas de Mercado": "Analyze this concept in the context of open innovation bids, public grant opportunities (like FINEP in Brazil, DoE in the US, EU Horizon Europe), and untapped market demands. Propose a business that directly addresses a real institutional or market demand.",
             "Choques Externos": "Analyze this concept through the lens of major external disruptions happening now (AI workforce shift, de-globalization, energy transition, aging populations, geopolitical shifts). Propose a business that capitalizes on 'Why Now?' timing from these disruptions.",
         };
-
         const specificPrompt = channelPrompts[channel] || "Propose a startup solution based on this input.";
 
-        const prompt = `
-            You are an expert venture builder. 
-            User Input (${channel}): "${safeInput}"
+        const systemInstruction = `
+            You are an expert venture builder.
             
             Task: ${specificPrompt}
             
@@ -66,8 +59,18 @@ export async function generateConcept(ideaId: string, channel: string, input: st
             Language: ${language === 'pt' ? 'Portuguese (Brazil)' : 'English'}
         `;
 
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.0-flash",
+            systemInstruction,
+            generationConfig: {
+                responseMimeType: "application/json",
+            }
+        });
+
+        const userPrompt = `User Input (${channel}): "${safeInput}"`;
+
         console.log(`[Ideation] Generating concept for channel: ${channel}, input: "${input.substring(0, 50)}..."`);
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent(userPrompt);
         const text = result.response.text();
 
         let parsed: any = { title: "Untitled Venture", pitch: "Failed to parse pitch.", imagePrompt: "" };

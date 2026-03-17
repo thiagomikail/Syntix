@@ -10,7 +10,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 export async function analyzeIdea(idea: string, language: string, context?: string): Promise<AnalysisResult> {
   const session = await requireSession();
-  checkRateLimit(session.user.id, "analyze", 10, 60_000);
+  await checkRateLimit(session.user.id, "analyze", 10, 60_000);
 
   const validation = await validateInput(idea);
   if (!validation.safe) {
@@ -70,7 +70,12 @@ export async function analyzeIdea(idea: string, language: string, context?: stri
     const parsed = JSON.parse(cleanText);
 
     // Basic structure validation before returning
-    if (typeof parsed.score !== 'number' || !Array.isArray(parsed.radarData)) {
+    if (
+        typeof parsed.score !== 'number' || 
+        !Array.isArray(parsed.radarData) ||
+        typeof parsed.title !== 'string' ||
+        typeof parsed.feedback !== 'string'
+    ) {
       throw new Error("Invalid response structure from AI");
     }
 

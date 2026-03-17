@@ -62,8 +62,10 @@ const inceptionSchema: Schema = {
 
 import { prisma } from "@/lib/prisma";
 import { validateInput } from "@/app/actions/validate-input";
+import { requireOwnership } from "@/lib/auth-guards";
 
 export async function classifyIdea(ideaId: string, ideaText: string, language: string = 'en'): Promise<InceptionAnalysis> {
+  await requireOwnership(ideaId);
   const validation = await validateInput(ideaText);
   if (!validation.safe) {
     throw new Error(validation.reason || "Input flagged for review.");
@@ -121,7 +123,7 @@ export async function classifyIdea(ideaId: string, ideaText: string, language: s
       where: { id: ideaId },
       data: {
         archetype: analysis.classification.path,
-        refinementJson: analysis as any,
+        refinementJson: JSON.stringify(analysis),
         status: "refinement"
       }
     });

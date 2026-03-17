@@ -30,7 +30,7 @@ export async function saveIRLScore(id: string, irlJson: object) {
     await requireOwnership(id);
     return await prisma.idea.update({
         where: { id },
-        data: { irlJson }
+        data: { irlJson: JSON.stringify(irlJson) }
     });
 }
 

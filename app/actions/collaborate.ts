@@ -2,11 +2,13 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth-guards";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const ALLOWED_TYPES = ["Technical Suggestion", "Risk Flag", "GTM Connection"] as const;
 
 export async function submitCollaboration(ideaId: string, type: string, feedback: string) {
     const session = await requireSession();
+    await checkRateLimit(session.user.id, "collaborate", 5, 60_000);
 
     if (!ALLOWED_TYPES.includes(type as any)) {
         throw new Error("Invalid collaboration type");
@@ -43,7 +45,8 @@ export async function resolveCollaboration(collaborationId: string, status: "acc
         });
 
         if (!collaboration) throw new Error("Not found");
-        if (collaboration.idea.userId !== session.user.id) throw new Error("Forbidden");
+        if (collaboration.idea.userId !== session.user.id) throw new Error("Not found");
+        if (collaboration.status !== "pending") throw new Error("Collaboration is already resolved");
 
         await prisma.collaboration.update({
             where: { id: collaborationId },

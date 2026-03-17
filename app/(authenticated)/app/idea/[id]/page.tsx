@@ -22,13 +22,20 @@ export default async function IdeaWorkspacePage({ params, searchParams }: { para
         redirect("/app");
     }
 
+    // Parse JSON strings for SQLite compatibility
+    const processedIdea = {
+        ...idea,
+        refinementJson: typeof idea.refinementJson === 'string' ? JSON.parse(idea.refinementJson) : idea.refinementJson,
+        irlJson: typeof idea.irlJson === 'string' ? JSON.parse(idea.irlJson) : idea.irlJson,
+    };
+
     if (idea.userId !== session.user.id) {
         redirect("/app");
     }
 
     return (
         <div className="h-full w-full">
-            <WorkspaceClient idea={idea} user={session.user.name || "Builder"} autoIgnite={autoIgnite} />
+            <WorkspaceClient idea={processedIdea} user={session.user.name || "Builder"} autoIgnite={autoIgnite} />
         </div>
     );
 }

@@ -46,9 +46,9 @@ export async function GET(req: Request) {
             <html><body>
                 <h1 style="color:red;">Server Error 500</h1>
                 <p>An error occurred in /app/idea/new/route.ts</p>
-                <pre style="background: #111; color: #ff5555; padding: 10px; border-radius: 5px;">${error.message}</pre>
+                <pre style="background: #111; color: #ff5555; padding: 10px; border-radius: 5px;">An internal server error occurred while creating your workspace.</pre>
                 <hr />
-                <pre style="background: #f4f4f4; padding: 10px; font-size: 12px;">${error.stack}</pre>
+                <pre style="background: #f4f4f4; padding: 10px; font-size: 12px;">Please try again later or contact support.</pre>
             </body></html>
         `, {
             status: 500,

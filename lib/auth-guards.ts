@@ -29,7 +29,7 @@ export async function requireOwnership(ideaId: string): Promise<string> {
         select: { userId: true },
     });
     if (!idea) throw new Error("Not found");
-    if (idea.userId !== session.user.id) throw new Error("Forbidden");
+    if (idea.userId !== session.user.id) throw new Error("Not found");
 
     return session.user.id;
 }

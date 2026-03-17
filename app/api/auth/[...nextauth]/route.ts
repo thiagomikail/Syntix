@@ -23,18 +23,23 @@ export const authOptions: NextAuthOptions = {
                 const username = credentials?.username?.trim();
                 if (!username) return null;
 
-                // Enforce valid callsign format and block reserved names
-                const RESERVED = ["admin", "root", "support", "syntix", "moderator", "staff"];
-                const validCallsign = /^[a-zA-Z0-9_]{3,20}$/.test(username);
-                if (!validCallsign || RESERVED.includes(username.toLowerCase())) return null;
+                try {
+                    // Enforce valid callsign format and block reserved names
+                    const RESERVED = ["admin", "root", "support", "syntix", "moderator", "staff"];
+                    const validCallsign = /^[a-zA-Z0-9_]{3,20}$/.test(username);
+                    if (!validCallsign || RESERVED.includes(username.toLowerCase())) return null;
 
-                const email = `${username}@syntix.local`;
-                const user = await prisma.user.upsert({
-                    where: { email },
-                    update: {},
-                    create: { name: username, email }
-                });
-                return { id: user.id, name: user.name, email: user.email };
+                    const email = `${username}@syntix.local`;
+                    const user = await prisma.user.upsert({
+                        where: { email },
+                        update: {},
+                        create: { name: username, email }
+                    });
+                    return { id: user.id, name: user.name, email: user.email };
+                } catch (error) {
+                    console.error("AUTH_ERROR_DETAIL:", error);
+                    return null;
+                }
             }
         })
     ],
@@ -61,6 +66,9 @@ export const authOptions: NextAuthOptions = {
                     });
                     if (dbUser) {
                         token.role = dbUser.role;
+                    } else {
+                        // Invalidate token if user no longer exists
+                        return {};
                     }
                 } catch {
                     // Silently ignore — user may have been deleted; token will expire naturally

@@ -6,9 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 // ----------------------------------------------------------------------------
@@ -80,8 +79,8 @@ model Idea {
   status         String   @default("ideation") // "ideation" | "refinement" | "stresstest"
   isPublic       Boolean  @default(false)
   archetype      String?  // "cash_cow" | "cash_farm" | "new_meat" | "ozempics" | "dead_end"
-  refinementJson Json?    // Expanded strategy roadmap (Inception analysis)
-  irlJson        Json?    // IRL scores (6-axis radar + 3 detailed metrics)
+  refinementJson String?    // Expanded strategy roadmap (Inception analysis)
+  irlJson        String?    // IRL scores (6-axis radar + 3 detailed metrics)
   thesisText     String?
   thumbnailUrl   String?
   averageRating  Float?
@@ -145,6 +144,13 @@ model PointsLedger {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RateLimit {
+  id      String   @id @default(cuid())
+  key     String   @unique
+  count   Int
+  resetAt DateTime
 }
 
 model Ladder {

@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 export async function chatWithBoard(history: Message[], userInput: string, language: string): Promise<Message> {
     const session = await requireSession();
-    checkRateLimit(session.user.id, "chat", 20, 60_000);
+    await checkRateLimit(session.user.id, "chat", 20, 60_000);
 
     const systemPrompt = `
      You are "The AI Board" of Syntix, a group of 4 expert personas stress-testing a founder's business idea.

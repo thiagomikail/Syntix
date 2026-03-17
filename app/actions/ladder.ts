@@ -19,7 +19,7 @@ export async function saveLadder(name: string, nodes: any[], edges: any[], ladde
         if (ladderId) {
             const existing = await prisma.ladder.findUnique({ where: { id: ladderId }, select: { userId: true } });
             if (!existing) throw new Error("Not found");
-            if (existing.userId !== userId) throw new Error("Forbidden");
+            if (existing.userId !== userId) throw new Error("Not found");
 
             const updated = await prisma.ladder.update({
                 where: { id: ladderId },
