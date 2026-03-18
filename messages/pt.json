@@ -1,0 +1,128 @@
+{
+    "landing": {
+        "headline": "Projetando o Futuro. Criando a Realidade.",
+        "subheadline": "O laboratório de inovações onde a teoria da engenharia encontra a construção de produtos reais. Transforme seus projetos em seus negócios",
+        "startBuilding": "Começar a Construir",
+        "exploreIdeas": "Explorar Ideias",
+        "fromIdeaToImpact": "Do Insight ao Impacto",
+        "nowInPrivateBeta": "AGORA EM BETA PRIVADO",
+        "exploreArena": "Explorar Arena",
+        "howItWorks": "Como funciona",
+        "theLab": "O Laboratório",
+        "theLabDesc": "Ideie de forma lógica. Engenharia sem criatividade é só repetição. Criatividade sem engenharia é só abstração.",
+        "irlExecution": "Execução Prática",
+        "irlExecutionDesc": "Encontre seus primeiros clientes.",
+        "theArena": "A Arena",
+        "theArenaDesc": "Batalhe ou colabore. É contigo. O resultado virá. Entre para o panteão dos melhores construtores.",
+        "gamifiedGen": "Engenharia Guiada",
+        "gamifiedGenDesc": "Não sabe criar modelo de negócios? A gente simplifica do zero ao primeiro pitch.",
+        "cashFlowFirst": "Construção Bootstrapped",
+        "cashFlowFirstDesc": "Crie software que resolve dores reais e se paga sozinho em vez de depender de investidores.",
+        "deepTechBridge": "Inovação de Fronteira",
+        "deepTechBridgeDesc": "Pegue as teorias malucas, as pesquisas de ponta e aplique no mundo.",
+        "terms": "Termos"
+    },
+    "dashboard": {
+        "userRanking": "Ranking de Usuários",
+        "architectLevel": "ARQUITETO NÍVEL 14",
+        "arenaImpact": "IMPACTO NA ARENA",
+        "rankings": "RANKINGS",
+        "allTime": "TODO O TEMPO",
+        "months": "MESES",
+        "friends": "AMIGOS",
+        "myIdeas": "Minhas Ideias",
+        "commandLogs": "Logs de Comando",
+        "myLab": "Meu Studio",
+        "manageVentures": "Gerencie seus empreendimentos ativos.",
+        "newProject": "Novo Projeto",
+        "noVenturesYet": "Ainda sem empreendimentos",
+        "startFirstProject": "Inicie seu primeiro projeto e comece a construir sua escada de empreendimentos.",
+        "untitledVenture": "Empreendimento sem título",
+        "updatedAt": "Atualizado em",
+        "arena": "Arena",
+        "pantheon": "Panteão"
+    },
+    "creation": {
+        "createNewIdea": "CRIAR NOVA IDEIA",
+        "describeVisionPlaceholder": "Descreva sua visão...",
+        "innovationLayer": "CAMADA DE INOVAÇÃO",
+        "cashFlow": "Fluxo de Caixa",
+        "scalability": "Escalabilidade",
+        "paradigmShift": "Mudança de Paradigma"
+    },
+    "pricing": {
+        "pricingTitle": "Preços e Acesso à Turma",
+        "explorerPlan": "Explorador $0/para sempre",
+        "cohortTierPlan": "Nível de Turma $499/turma",
+        "applyNow": "Inscreva-se Agora"
+    },
+    "auth": {
+        "joinSyntix": "Junte-se ao SYNTIX",
+        "buildSyntix": "Construa o seu empreendimento.",
+        "continueWithGoogle": "Continuar com o Google",
+        "orCallsign": "OU INDICATIVO",
+        "enterCallsign": "Insira o indicativo",
+        "initializeSession": "Inicializar Sessão",
+        "authenticating": "Autenticando...",
+        "loginFailed": "Falha no login"
+    },
+    "workspace": {
+        "ideation": "Ideação",
+        "inception": "Incepção",
+        "pitchReady": "Pronto para o Pitch"
+    },
+    "ideation": {
+        "channels": {
+            "pain": {
+                "title": "Fricção & Dor",
+                "desc": "Resolva frustrações óbvias que você mesmo enfrenta",
+                "topics": [
+                    "Gambiarras caras",
+                    "Entrada manual de dados",
+                    "Processos quebrados",
+                    "Suporte ruim"
+                ]
+            },
+            "deeptech": {
+                "title": "Tecnologia de Fronteira",
+                "desc": "Deep tech, pesquisa avançada, novos materiais",
+                "topics": [
+                    "IA Aplicada",
+                    "Biologia Sintética",
+                    "Novo Armazenamento de Energia",
+                    "Sensores Quânticos"
+                ]
+            },
+            "scale": {
+                "title": "Escalar & Diferenciar",
+                "desc": "Levando modelos existentes a novos nichos ou escalas",
+                "topics": [
+                    "X para Y",
+                    "SaaS Vertical",
+                    "Desmembramento de plataformas",
+                    "Comoditização de serviços"
+                ]
+            },
+            "market": {
+                "title": "Tendências Emergentes",
+                "desc": "Atração do mercado, mudanças regulatórias, macro",
+                "topics": [
+                    "Mudanças demográficas",
+                    "Novas leis de compliance",
+                    "Infraestrutura remota",
+                    "Ferramentas para criadores"
+                ]
+            }
+        },
+        "inputYourIdea": "INSIRA SUA IDEIA",
+        "describeConcept": "Descreva seu conceito, então ligue o motor.",
+        "describeBusinessPlaceholder": "Descreva sua ideia de negócio...",
+        "describeChannelPlaceholder": "Descreva sua ideia de {channel}...",
+        "ignite": "IGNIÇÃO",
+        "generating": "Gerando...",
+        "exploreChannel": "Ou explore um canal",
+        "close": "FECHAR",
+        "generatedConcept": "Conceito Gerado",
+        "proceedToInception": "Avançar para Incepção"
+    }
+}

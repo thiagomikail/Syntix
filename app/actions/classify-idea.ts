@@ -123,7 +123,7 @@ export async function classifyIdea(ideaId: string, ideaText: string, language: s
       where: { id: ideaId },
       data: {
         archetype: analysis.classification.path,
-        refinementJson: JSON.stringify(analysis),
+        refinementJson: analysis as any,
         status: "refinement"
       }
     });

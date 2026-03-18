@@ -33,17 +33,10 @@ export default async function ArenaPage() {
         "dead_end": "⚠️ Dead End",
     };
 
-    // Parse JSON strings for SQLite compatibility
-    const processedIdeas = ideas.map(idea => ({
-        ...idea,
-        refinementJson: typeof idea.refinementJson === 'string' ? JSON.parse(idea.refinementJson) : idea.refinementJson,
-        irlJson: typeof idea.irlJson === 'string' ? JSON.parse(idea.irlJson) : idea.irlJson,
-    }));
-
     // Also create an "All" row and a "Top Rated" row
-    const topRated = [...processedIdeas].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0)).slice(0, 10);
+    const topRated = [...ideas].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0)).slice(0, 10);
 
-    for (const idea of processedIdeas) {
+    for (const idea of ideas) {
         const archetype = idea.archetype || "unclassified";
         if (!archetypeGroups[archetype]) archetypeGroups[archetype] = [];
         archetypeGroups[archetype].push(idea);

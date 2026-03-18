@@ -12,8 +12,8 @@ export async function saveLadder(name: string, nodes: any[], edges: any[], ladde
     if (!name?.trim()) throw new Error("Ladder name is required");
 
     try {
-        const nodesJson = JSON.stringify(nodes);
-        const edgesJson = JSON.stringify(edges);
+        const nodesJson = nodes as any;
+        const edgesJson = edges as any;
         const strengthScore = calculateStrength(nodes, edges);
 
         if (ladderId) {

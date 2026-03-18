@@ -1,5 +1,5 @@
-import enMessages from '@/messages/en.json';
-import ptMessages from '@/messages/pt.json';
+import enMessages from '../messages/en.json';
+import ptMessages from '../messages/pt.json';
 
 export type Language = 'pt' | 'en';
 

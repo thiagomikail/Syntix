@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ----------------------------------------------------------------------------
@@ -79,8 +80,8 @@ model Idea {
   status         String   @default("ideation") // "ideation" | "refinement" | "stresstest"
   isPublic       Boolean  @default(false)
   archetype      String?  // "cash_cow" | "cash_farm" | "new_meat" | "ozempics" | "dead_end"
-  refinementJson String?    // Expanded strategy roadmap (Inception analysis)
-  irlJson        String?    // IRL scores (6-axis radar + 3 detailed metrics)
+  refinementJson Json?    // Expanded strategy roadmap (Inception analysis)
+  irlJson        Json?    // IRL scores (6-axis radar + 3 detailed metrics)
   thesisText     String?
   thumbnailUrl   String?
   averageRating  Float?
@@ -157,8 +158,8 @@ model Ladder {
   id            String   @id @default(cuid())
   userId        String
   name          String
-  nodesJson     String
-  edgesJson     String
+  nodesJson     Json
+  edgesJson     Json
   strengthScore Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

@@ -14,7 +14,7 @@ interface LadderClientProps {
 export function LadderClient({ ideas, initialLadder, user }: LadderClientProps) {
     // We represent the graph as a simple linear array of idea IDs for the MVP
     const [sequence, setSequence] = useState<string[]>(
-        initialLadder ? JSON.parse(initialLadder.nodesJson).map((n: any) => n.id) : []
+        initialLadder ? (initialLadder.nodesJson as any[]).map((n: any) => n.id) : []
     );
     const [strength, setStrength] = useState<number>(initialLadder?.strengthScore || 0);
     const [isSaving, setIsSaving] = useState(false);
