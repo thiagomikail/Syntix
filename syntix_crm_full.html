@@ -723,7 +723,7 @@ function toggleDashboard(showDashboard) {
 }
 
 // Global cache for the API Key so we only ask once per session
-let cachedApiKey = 'AIzaSyA6XBJ2Q91Jgzlq9RLFR-ygBReARWjtZmA';
+let cachedApiKey = ''; // Removed for security. API key is now handled by the server env.
 
 async function generateAIBusinessIdea(name, position, company) {
   const btn = document.getElementById(`btn-gen-${name.replace(/\\s/g,'')}`);
