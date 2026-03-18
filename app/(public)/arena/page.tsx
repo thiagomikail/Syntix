@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArenaIdeaCard } from "./ArenaIdeaCard";
 
+export const dynamic = "force-dynamic";
+
 export default async function ArenaPage() {
     const ideas = await prisma.idea.findMany({
         where: { isPublic: true },
