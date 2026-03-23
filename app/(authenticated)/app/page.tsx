@@ -66,7 +66,7 @@ export default function DashboardPage() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {ideas.map((idea) => (
-                        <Link key={idea.id} href={`/app/idea/${idea.id}`}>
+                        <Link key={idea.id} href={`/app/idea/${idea.id}?tab=stress-test`}>
                             <div
                                 className="group flex flex-col rounded-2xl border border-primary/10 bg-surface/80 backdrop-blur-sm p-5 transition-all hover:border-primary/50 hover:shadow-glow-primary h-full cursor-pointer relative overflow-hidden"
                                 style={idea.thumbnailUrl ? { backgroundImage: `linear-gradient(to top, rgba(26,26,26,0.95) 0%, rgba(26,26,26,0.5) 100%), url("${idea.thumbnailUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}

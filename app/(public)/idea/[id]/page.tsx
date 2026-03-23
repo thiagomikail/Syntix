@@ -54,9 +54,9 @@ export default async function PublicIdeaPage({ params }: { params: Promise<{ id:
                 </Link>
                 <div className="flex gap-2">
                     {isOwner && (
-                        <Link href={`/app/idea/${idea.id}`} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-bold text-primary hover:bg-primary/20 transition-colors">
-                            <span className="material-symbols-outlined text-sm">edit</span>
-                            Edit in Lab
+                        <Link href={`/app/idea/${idea.id}?tab=stress-test`} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-bold text-primary hover:bg-primary/20 transition-colors">
+                            <span className="material-symbols-outlined text-sm">hub</span>
+                            Open in Stress Test
                         </Link>
                     )}
                     {!session && (

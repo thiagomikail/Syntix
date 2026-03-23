@@ -26,10 +26,12 @@ export const authOptions: NextAuthOptions = {
                 try {
                     // Enforce valid callsign format and block reserved names
                     const RESERVED = ["admin", "root", "support", "syntix", "moderator", "staff"];
-                    const validCallsign = /^[a-zA-Z0-9_]{3,20}$/.test(username);
+                    const validCallsign = /^[\w\s\-\u00C0-\u024F]{2,30}$/u.test(username);
                     if (!validCallsign || RESERVED.includes(username.toLowerCase())) return null;
 
-                    const email = `${username}@syntix.local`;
+                    // Sanitize username for email derivation (replace non-alphanumeric with underscore)
+                    const sanitized = username.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+                    const email = `${sanitized}@syntix.local`;
                     const user = await prisma.user.upsert({
                         where: { email },
                         update: {},

@@ -9,6 +9,9 @@ export default async function IdeaWorkspacePage({ params, searchParams }: { para
     const resolvedParams = await params;
     const resolvedSearchParams = await searchParams;
     const autoIgnite = typeof resolvedSearchParams.autoIgnite === 'string' ? resolvedSearchParams.autoIgnite : undefined;
+    const tab = typeof resolvedSearchParams.tab === 'string' ? resolvedSearchParams.tab : undefined;
+    const validTabs = ['ideation', 'refinement', 'stress-test'] as const;
+    const initialTab = validTabs.includes(tab as any) ? (tab as typeof validTabs[number]) : undefined;
 
     if (!session?.user?.id) {
         redirect("/");
@@ -28,7 +31,7 @@ export default async function IdeaWorkspacePage({ params, searchParams }: { para
 
     return (
         <div className="h-full w-full">
-            <WorkspaceClient idea={idea as any} user={session.user.name || "Builder"} autoIgnite={autoIgnite} />
+            <WorkspaceClient idea={idea as any} user={session.user.name || "Builder"} autoIgnite={autoIgnite} initialTab={initialTab} />
         </div>
     );
 }

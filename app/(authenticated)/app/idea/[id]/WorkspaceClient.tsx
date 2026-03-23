@@ -18,13 +18,15 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
 export function WorkspaceClient({
     idea,
     user,
-    autoIgnite
+    autoIgnite,
+    initialTab
 }: {
     idea: any,
     user: string,
-    autoIgnite?: string
+    autoIgnite?: string,
+    initialTab?: Tab
 }) {
-    const [activeTab, setActiveTab] = useState<Tab>("ideation");
+    const [activeTab, setActiveTab] = useState<Tab>(initialTab || "ideation");
     const [transferredContext, setTransferredContext] = useState<{ text: string, analysis?: InceptionAnalysis } | null>(null);
     const [generatedIdea, setGeneratedIdea] = useState<string>(idea.rawText || "");
 
