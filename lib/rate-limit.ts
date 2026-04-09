@@ -34,9 +34,9 @@ export async function checkRateLimit(userId: string, action: string, limit = 10,
             where: { key },
             data: { count: { increment: 1 } },
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         // Log the error but fallback to in-memory to prevent 500 crashes during demo
-        console.warn("[RateLimit] Database error, falling back to memory:", error.message);
+        console.warn("[RateLimit] Database error, falling back to memory:", error instanceof Error ? error.message : error);
         
         const memEntry = memoryCache.get(key);
         if (!memEntry || now > memEntry.resetAt) {

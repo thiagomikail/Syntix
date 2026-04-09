@@ -1,20 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors */
-  --color-primary: #FF6B00;
-  --color-background-light: #F2F2F2;
-  --color-background-dark: #0A0A0A;
-  --color-accent-cyan: #FF6B00;
-  /* Reusing orange as accent for consistency if needed or keep cyan if desired. Let's stick to Orange. */
+  /* Vault Brand Colors — Deep blue/teal security theme */
+  --color-primary: #0EA5E9;
+  --color-primary-dark: #0284C7;
+  --color-primary-light: #38BDF8;
+  --color-accent: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-background-dark: #0B1120;
+  --color-background-surface: #111827;
+  --color-background-card: #1E293B;
+  --color-border: rgba(14, 165, 233, 0.15);
 
   /* Font */
   --font-display: "Inter", "Geist", sans-serif;
 
   /* Shadows */
-  --shadow-glow-primary: 0 0 20px rgba(255, 107, 0, 0.3);
-  --shadow-glow-cyan: 0 0 20px rgba(255, 107, 0, 0.3);
-  /* Replacing cyan glow with orange glow */
+  --shadow-glow-primary: 0 0 20px rgba(14, 165, 233, 0.25);
+  --shadow-glow-accent: 0 0 20px rgba(16, 185, 129, 0.25);
 }
 
 @layer base {
@@ -22,24 +26,31 @@
     font-family: var(--font-display);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    min-height: max(884px, 100dvh);
+    min-height: 100dvh;
     background-color: var(--color-background-dark);
-    color: #FFFFFF;
+    color: #F1F5F9;
   }
 }
 
-/* Dot grid background utility */
-.dot-grid {
-  background-image: radial-gradient(circle at 2px 2px, #FF6B00 1px, transparent 0);
-  background-size: 24px 24px;
+/* Subtle grid background */
+.vault-grid {
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 /* Scrollbar hide */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Expiry status indicators */
+.status-safe { color: #10B981; }
+.status-warning { color: #F59E0B; }
+.status-danger { color: #EF4444; }
+.status-expired { color: #EF4444; opacity: 0.7; }

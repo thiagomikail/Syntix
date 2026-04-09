@@ -1,19 +1,17 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // NextAuth Standard Models
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -47,17 +45,24 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  role          String    @default("USER") // GUEST, USER, ADMIN
+  role          String    @default("USER") // USER | ADMIN
   createdAt     DateTime  @default(now())
 
-  accounts       Account[]
-  sessions       Session[]
-  ideas          Idea[]
-  votes          Vote[]
-  comments       Comment[]
-  collaborations Collaboration[] @relation("FromUser")
-  pointsLedger   PointsLedger[]
-  ladders        Ladder[]
+  // NextAuth relations
+  accounts Account[]
+  sessions Session[]
+
+  // Vault relations
+  vaultDocuments     VaultDocument[]      @relation("VaultDocuments")
+  vaultSubscription  VaultSubscription?
+  vaultFamilyGroup   VaultFamilyGroup?
+  vaultReminders     VaultReminder[]
+  vaultNotifications VaultNotification[]
+  vaultKeyPair       VaultKeyPair?
+  vaultSharedBy      VaultDocumentShare[] @relation("SharedByUser")
+  vaultSharedTo      VaultDocumentShare[] @relation("SharedToUser")
+  agentProfile       AgentProfile?
+  vaultConsentLogs   VaultConsentLog[]
 }
 
 model VerificationToken {
@@ -68,101 +73,247 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// ----------------------------------------------------------------------------
-// Syntix Domain Models
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Vault Subscription & Tiers
+// ---------------------------------------------------------------------------
 
-model Idea {
+model VaultSubscription {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  tier      String    @default("FREE") // FREE | PREMIUM | AGENT
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// Vault Documents
+// ---------------------------------------------------------------------------
+
+model VaultDocument {
+  id                String    @id @default(cuid())
+  ownerId           String
+  familyMemberId    String?
+  documentType      String    // PASSPORT | VISA | INSURANCE | VACCINATION | OTHER
+  label             String
+  fileName          String
+  storagePath       String
+  encryptedKeyBlob  String    // AES doc key wrapped with user master key (base64)
+  metadataEncrypted String?   // Encrypted JSON: { issueDate, expiryDate, documentNumber, country }
+  expiryDate        DateTime? // Plaintext for reminder queries (not PII — just a date)
+  fileSizeBytes     Int
+  mimeType          String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  owner        User               @relation("VaultDocuments", fields: [ownerId], references: [id], onDelete: Cascade)
+  familyMember VaultFamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+  shares       VaultDocumentShare[]
+  reminders    VaultReminder[]
+
+  @@index([ownerId])
+  @@index([expiryDate])
+}
+
+// ---------------------------------------------------------------------------
+// Family Management
+// ---------------------------------------------------------------------------
+
+model VaultFamilyGroup {
+  id        String   @id @default(cuid())
+  ownerId   String   @unique
+  name      String   @default("My Family")
+  createdAt DateTime @default(now())
+
+  owner   User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members VaultFamilyMember[]
+}
+
+model VaultFamilyMember {
+  id            String   @id @default(cuid())
+  familyGroupId String
+  name          String
+  relationship  String   // SPOUSE | CHILD | PARENT | SIBLING | OTHER
+  createdAt     DateTime @default(now())
+
+  familyGroup VaultFamilyGroup @relation(fields: [familyGroupId], references: [id], onDelete: Cascade)
+  documents   VaultDocument[]
+}
+
+// ---------------------------------------------------------------------------
+// Document Sharing (1:1 only, never groups)
+// ---------------------------------------------------------------------------
+
+model VaultDocumentShare {
+  id             String    @id @default(cuid())
+  documentId     String
+  sharedByUserId String
+  sharedToUserId String
+  encryptedKey   String    // Doc key re-encrypted with recipient RSA public key (base64)
+  accessLevel    String    @default("VIEW") // VIEW | DOWNLOAD
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  document VaultDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sharedBy User          @relation("SharedByUser", fields: [sharedByUserId], references: [id], onDelete: Cascade)
+  sharedTo User          @relation("SharedToUser", fields: [sharedToUserId], references: [id], onDelete: Cascade)
+
+  @@index([sharedToUserId])
+  @@index([documentId])
+}
+
+// ---------------------------------------------------------------------------
+// Reminders
+// ---------------------------------------------------------------------------
+
+model VaultReminder {
+  id           String    @id @default(cuid())
+  documentId   String
+  userId       String
+  daysBefore   Int       // 30, 60, 90, 180
+  reminderDate DateTime
+  sentAt       DateTime?
+  dismissedAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  document VaultDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, daysBefore])
+  @@index([reminderDate])
+}
+
+// ---------------------------------------------------------------------------
+// In-App Notifications
+// ---------------------------------------------------------------------------
+
+model VaultNotification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String    // EXPIRY_REMINDER | SHARE_RECEIVED | SHARE_REVOKED | SYSTEM
+  title     String
+  body      String
+  refType   String?   // document | share
+  refId     String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+// ---------------------------------------------------------------------------
+// Travel Agent Profiles
+// ---------------------------------------------------------------------------
+
+model AgentProfile {
   id             String   @id @default(cuid())
-  userId         String
-  title          String?
-  rawText        String
-  status         String   @default("ideation") // "ideation" | "refinement" | "stresstest"
-  isPublic       Boolean  @default(false)
-  archetype      String?  // "cash_cow" | "cash_farm" | "new_meat" | "ozempics" | "dead_end"
-  refinementJson Json?    // Expanded strategy roadmap (Inception analysis)
-  irlJson        Json?    // IRL scores (6-axis radar + 3 detailed metrics)
-  thesisText     String?
-  thumbnailUrl   String?
-  averageRating  Float?
+  userId         String   @unique
+  agencyName     String
+  licenseNumber  String?
+  verified       Boolean  @default(false)
+  creditsBalance Int      @default(0)
   createdAt      DateTime @default(now())
+
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processingTimes VaultProcessingTime[]
+  creditGifts     AgentCreditGift[]
+}
+
+// ---------------------------------------------------------------------------
+// Processing Times (Agent-contributed crowdsourced data)
+// ---------------------------------------------------------------------------
+
+model VaultProcessingTime {
+  id             String   @id @default(cuid())
+  agentProfileId String
+  documentType   String   // PASSPORT | VISA
+  country        String   // ISO 3166-1 alpha-2
+  consulateCity  String?
+  processingDays Int
+  source         String   // POLICIA_FEDERAL | CONSULATE | AGENT_EXPERIENCE
+  reportedAt     DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  votes          Vote[]
-  comments       Comment[]
-  collaborations Collaboration[]
+  agentProfile AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
+
+  @@index([documentType, country])
+}
+
+// ---------------------------------------------------------------------------
+// Agent Credit Gifts
+// ---------------------------------------------------------------------------
+
+model AgentCreditGift {
+  id             String    @id @default(cuid())
+  agentProfileId String
+  recipientEmail String
+  recipientId    String?
+  creditAmount   Int
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  agentProfile AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// Encryption Key Pairs (for document sharing)
+// ---------------------------------------------------------------------------
+
+model VaultKeyPair {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  publicKeyJwk           String   // RSA-OAEP public key as JWK JSON
+  encryptedPrivateKeyJwk String   // RSA-OAEP private key encrypted with master key
+  createdAt              DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// LGPD / GDPR / CCPA Compliance
+// ---------------------------------------------------------------------------
+
+model VaultConsentLog {
+  id          String   @id @default(cuid())
+  userId      String
+  consentType String   // VAULT_TOS | DATA_PROCESSING | CROSS_BORDER_TRANSFER | MARKETING
+  granted     Boolean
+  ipAddress   String?
+  userAgent   String?
+  version     String   // consent form version e.g. "1.0"
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-model Vote {
-  id        String   @id @default(cuid())
-  ideaId    String
-  userId    String
-  score     Int      // 1-5 stars
-  createdAt DateTime @default(now())
-
-  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, ideaId])
-}
-
-model Comment {
+model VaultAuditLog {
   id         String   @id @default(cuid())
-  ideaId     String
   userId     String?
-  authorName String?
-  content    String
+  action     String   // UPLOAD | DOWNLOAD | SHARE | REVOKE | DELETE | EXPORT | VIEW
+  resource   String   // document | family | share | account
+  resourceId String?
+  metadata   Json?
+  ipAddress  String?
   createdAt  DateTime @default(now())
 
-  idea Idea  @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([createdAt])
 }
 
-model Collaboration {
-  id         String   @id @default(cuid())
-  ideaId     String
-  fromUserId String
-  type       String   // "Technical Suggestion" | "Risk Flag" | "GTM Connection"
-  content    String
-  status     String   @default("pending") // "pending" | "accepted" | "rejected"
-  createdAt  DateTime @default(now())
-
-  idea     Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  fromUser User @relation("FromUser", fields: [fromUserId], references: [id], onDelete: Cascade)
-}
-
-model PointsLedger {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String   // "CP" (Collaboration Points), etc.
-  amount    Int
-  reason    String
-  refType   String?
-  refId     String?
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+// ---------------------------------------------------------------------------
+// Rate Limiting
+// ---------------------------------------------------------------------------
 
 model RateLimit {
   id      String   @id @default(cuid())
   key     String   @unique
   count   Int
   resetAt DateTime
-}
-
-model Ladder {
-  id            String   @id @default(cuid())
-  userId        String
-  name          String
-  nodesJson     Json
-  edgesJson     Json
-  strengthScore Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
